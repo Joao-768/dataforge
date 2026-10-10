@@ -1,26 +1,415 @@
 @import 'tailwindcss';
 
+/*
+ * DataForge tokens.
+ *
+ * Same family as CollabCode, Pulse Monitor and Workflow Engine: ink on a pure
+ * background, neutral greys with no tint, hairline rules, uppercase mono
+ * labels and exactly one hue. DataForge's hue is ember, the forge at work: it
+ * marks what is active or selected (the current tab, the selected table, the
+ * relationship being drawn, keyboard focus) and primary keys on the canvas.
+ * Primary buttons stay ink. Status colours mean one thing each and are used
+ * only where state matters.
+ *
+ * Dark is the default. The theme is set on <html data-theme> by /theme.js
+ * before first paint.
+ */
 :root {
-    --background: #ffffff;
-    --foreground: #171717;
+    color-scheme: light;
+
+    --paper: #ffffff;
+    --panel: #fafafa;
+    --raised: #f2f2f2;
+    --rule: #e5e5e5;
+    --rule-strong: #cfcfcf;
+    --grid: #ededed;
+
+    --ink: #111111;
+    --ink-2: #4d4d4d;
+    --ink-3: #6e6e6e;
+    --on-ink: #ffffff;
+    --ink-hover: #000000;
+
+    --accent: #c2410c;
+    --accent-soft: #fdeee5;
+    --accent-text: #9a3412;
+
+    --ok: #1a7f37;
+    --ok-soft: #dcf3e4;
+    --warn: #9a6700;
+    --warn-soft: #fbf0d6;
+    --danger: #c9252b;
+    --danger-soft: #fbe5e5;
+    --danger-text: #8f1f23;
+    --danger-hover: #b01f25;
+
+    /* Canvas */
+    --canvas-dot: #d4d4d4;
+    --edge: #9e9e9e;
+    --edge-active: #3d3d3d;
+    --minimap-mask: rgb(240 240 240 / 0.7);
+
+    /* SQL syntax, shared by Monaco and static code blocks. */
+    --syntax-keyword: #9a3412;
+    --syntax-string: #116329;
+    --syntax-number: #0550ae;
+    --syntax-comment: #8a8a8a;
+    --syntax-type: #6639ba;
+
+    --scrim: rgb(17 17 17 / 0.35);
+    --shadow: rgb(0 0 0 / 0.12);
+
+    --masthead-height: 56px;
+    --tabs-height: 44px;
 }
 
-@theme inline {
-    --color-background: var(--background);
-    --color-foreground: var(--foreground);
-    --font-sans: var(--font-geist-sans);
-    --font-mono: var(--font-geist-mono);
+:root[data-theme='dark'] {
+    color-scheme: dark;
+
+    --paper: #000000;
+    --panel: #0b0b0b;
+    --raised: #141414;
+    --rule: #1f1f1f;
+    --rule-strong: #333333;
+    --grid: #1a1a1a;
+
+    --ink: #ededed;
+    --ink-2: #a3a3a3;
+    --ink-3: #7c7c7c;
+    --on-ink: #000000;
+    --ink-hover: #ffffff;
+
+    --accent: #ff8a4c;
+    --accent-soft: #2a160c;
+    --accent-text: #ffb184;
+
+    --ok: #3fb950;
+    --ok-soft: #0f2a17;
+    --warn: #e3b341;
+    --warn-soft: #2f2410;
+    --danger: #f0585d;
+    --danger-soft: #351619;
+    --danger-text: #ff9b9e;
+    --danger-hover: #e5484d;
+
+    --canvas-dot: #1f1f1f;
+    --edge: #4a4a4a;
+    --edge-active: #bdbdbd;
+    --minimap-mask: rgb(0 0 0 / 0.6);
+
+    --syntax-keyword: #ff9e6b;
+    --syntax-string: #7ee787;
+    --syntax-number: #79c0ff;
+    --syntax-comment: #6b6b6b;
+    --syntax-type: #d2a8ff;
+
+    --scrim: rgb(0 0 0 / 0.7);
+    --shadow: rgb(0 0 0 / 0.7);
 }
 
-@media (prefers-color-scheme: dark) {
-    :root {
-        --background: #0a0a0a;
-        --foreground: #ededed;
+/* `dark:` utilities follow the chosen theme, not only the OS setting. */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+@theme {
+    --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+    --font-mono: var(--font-geist-mono), ui-monospace, 'SFMono-Regular', Menlo, monospace;
+
+    --color-paper: var(--paper);
+    --color-panel: var(--panel);
+    --color-raised: var(--raised);
+    --color-rule: var(--rule);
+    --color-rule-strong: var(--rule-strong);
+    --color-grid: var(--grid);
+    --color-ink: var(--ink);
+    --color-ink-2: var(--ink-2);
+    --color-ink-3: var(--ink-3);
+    --color-on-ink: var(--on-ink);
+    --color-ink-hover: var(--ink-hover);
+    --color-accent: var(--accent);
+    --color-accent-soft: var(--accent-soft);
+    --color-accent-text: var(--accent-text);
+    --color-ok: var(--ok);
+    --color-ok-soft: var(--ok-soft);
+    --color-warn: var(--warn);
+    --color-warn-soft: var(--warn-soft);
+    --color-danger: var(--danger);
+    --color-danger-soft: var(--danger-soft);
+    --color-danger-text: var(--danger-text);
+    --color-danger-hover: var(--danger-hover);
+    --color-scrim: var(--scrim);
+
+    --animate-fade-in: fade-in 160ms ease-out;
+    --animate-rise: rise 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@layer base {
+    html {
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+    }
+
+    body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: var(--font-sans);
+        font-size: 14px;
+        line-height: 1.55;
+    }
+
+    ::selection {
+        background: var(--accent);
+        color: var(--on-ink);
+    }
+
+    :focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+    }
+
+    button {
+        cursor: pointer;
+    }
+
+    button:disabled {
+        cursor: not-allowed;
+    }
+
+    code,
+    kbd,
+    samp {
+        font-family: var(--font-mono);
     }
 }
 
-body {
-    background: var(--background);
-    color: var(--foreground);
-    font-family: Arial, Helvetica, sans-serif;
+@layer components {
+    /* One field style for every input, select and textarea, so their heights
+       always match (a select sizes itself from font metrics otherwise). */
+    .field {
+        --field-height: 2.5rem;
+        appearance: none;
+        -webkit-appearance: none;
+        display: block;
+        width: 100%;
+        min-height: var(--field-height);
+        padding: 0 0.75rem;
+        font: inherit;
+        font-size: 0.875rem;
+        line-height: calc(var(--field-height) - 2px);
+        color: var(--ink);
+        background: var(--panel);
+        border: 1px solid var(--rule-strong);
+        border-radius: 6px;
+        transition:
+            border-color 120ms,
+            box-shadow 120ms;
+    }
+
+    .field-sm {
+        --field-height: 2rem;
+        padding: 0 0.5rem;
+        font-size: 0.8125rem;
+    }
+
+    textarea.field {
+        padding-block: 0.55rem;
+        line-height: 1.5;
+        resize: vertical;
+    }
+
+    select.field {
+        padding-right: 2rem;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.65rem center;
+    }
+
+    .field::placeholder {
+        color: var(--ink-3);
+    }
+
+    .field:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    .field[aria-invalid='true'] {
+        border-color: var(--danger);
+    }
+
+    .field[aria-invalid='true']:focus {
+        box-shadow: 0 0 0 3px var(--danger-soft);
+    }
+
+    .field:disabled,
+    .field[readonly] {
+        background: var(--paper);
+        color: var(--ink-2);
+    }
+
+    .field.mono {
+        font-family: var(--font-mono);
+        font-size: 0.8125rem;
+    }
+
+    /* Uppercase mono label: section eyebrows, panel headers, units. */
+    .eyebrow {
+        font-family: var(--font-mono);
+        font-size: 0.6875rem;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+    }
+
+    /* Hairline list rows. */
+    .rows > * + * {
+        border-top: 1px solid var(--rule);
+    }
+
+    /* Dotted blueprint background for the schema canvas and empty states. */
+    .blueprint {
+        background-color: var(--paper);
+        background-image: radial-gradient(var(--canvas-dot) 1px, transparent 1px);
+        background-size: 20px 20px;
+    }
+
+    .scrollbar-thin {
+        scrollbar-width: thin;
+        scrollbar-color: var(--rule-strong) transparent;
+    }
+}
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes rise {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ── React Flow ──────────────────────────────────────────────────────────── */
+
+.react-flow {
+    --xy-background-color: transparent;
+    --xy-background-pattern-color: var(--canvas-dot);
+    --xy-edge-stroke: var(--edge);
+    --xy-edge-stroke-selected: var(--accent);
+    --xy-connectionline-stroke: var(--accent);
+    --xy-attribution-background-color: transparent;
+    --xy-controls-button-background-color: var(--panel);
+    --xy-controls-button-background-color-hover: var(--raised);
+    --xy-controls-button-color: var(--ink-2);
+    --xy-controls-button-color-hover: var(--ink);
+    --xy-controls-button-border-color: var(--rule);
+    --xy-minimap-background-color: var(--panel);
+    --xy-minimap-mask-background-color: var(--minimap-mask);
+    --xy-minimap-node-background-color: var(--rule-strong);
+    --xy-handle-background-color: var(--ink-3);
+    --xy-handle-border-color: var(--paper);
+    --xy-selection-background-color: color-mix(in srgb, var(--accent) 8%, transparent);
+    --xy-selection-border: 1px dashed var(--accent);
+}
+
+.react-flow__controls {
+    box-shadow: none;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.react-flow__minimap {
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.react-flow__attribution a {
+    color: var(--ink-3);
+}
+
+.react-flow__edge-textbg {
+    fill: var(--paper);
+}
+
+.react-flow__edge-text {
+    fill: var(--ink-2);
+    font-family: var(--font-mono);
+    font-size: 10px;
+}
+
+.react-flow__handle.column-handle {
+    width: 8px;
+    height: 8px;
+    border-width: 1.5px;
+    opacity: 0;
+    transition: opacity 120ms;
+}
+
+.react-flow__node:hover .column-handle,
+.react-flow__node.selected .column-handle,
+.react-flow.connecting .column-handle {
+    opacity: 1;
+}
+
+.react-flow__handle.column-handle.connectingto,
+.react-flow__handle.column-handle.valid {
+    background: var(--accent);
+}
+
+@media (max-width: 860px) {
+    .react-flow__minimap {
+        display: none;
+    }
+}
+
+/* ── Panel separators (react-resizable-panels) ──────────────────────────── */
+
+[data-separator] {
+    position: relative;
+    background: var(--rule);
+    transition: background 120ms;
+}
+
+[data-separator][aria-orientation='vertical'] {
+    width: 1px;
+}
+
+[data-separator][aria-orientation='horizontal'] {
+    height: 1px;
+}
+
+[data-separator]::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+}
+
+[data-separator='hover'],
+[data-separator='active'],
+[data-separator='focus'] {
+    background: var(--accent);
+    outline: none;
 }

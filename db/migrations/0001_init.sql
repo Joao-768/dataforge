@@ -101,6 +101,8 @@ CREATE TABLE connections (
     -- Managed sandboxes only: the template they were cloned from.
     template text,
     server_version text,
+    -- Cached from the latest introspection, for the dashboard.
+    table_count integer,
     last_checked_at timestamptz,
     last_error text,
     created_at timestamptz NOT NULL DEFAULT now(),
@@ -118,7 +120,11 @@ CREATE INDEX connections_managed_idx ON connections (kind) WHERE kind = 'managed
 CREATE TABLE schema_drafts (
     project_id uuid PRIMARY KEY REFERENCES projects (id) ON DELETE CASCADE,
     document jsonb NOT NULL,
-    -- Fingerprint of the live schema the draft was last rebased on.
+    -- The live schema the draft was last rebased on, and its fingerprint.
+    -- Diffing document against base tells whether the draft has unapplied
+    -- changes; comparing the fingerprint with the live database tells
+    -- whether the database changed underneath it.
+    base_document jsonb NOT NULL,
     base_fingerprint text NOT NULL,
     revision integer NOT NULL DEFAULT 1,
     updated_by uuid REFERENCES users (id) ON DELETE SET NULL,
