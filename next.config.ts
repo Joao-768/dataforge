@@ -3,7 +3,17 @@ import type { NextConfig } from 'next'
 const nextConfig: NextConfig = {
     output: 'standalone',
     poweredByHeader: false,
+    devIndicators: false,
     reactStrictMode: true,
+    // Tailwind CSS v4 runs as a Turbopack loader for every stylesheet.
+    turbopack: {
+        rules: {
+            '*.css': {
+                loaders: ['@tailwindcss/turbopack'],
+                as: '*.css',
+            },
+        },
+    },
     // Native and stream-heavy server packages stay as runtime requires instead
     // of being bundled.
     serverExternalPackages: ['pg', 'pg-cursor', 'pino', 'nodemailer', 'csv-parse', 'csv-stringify'],

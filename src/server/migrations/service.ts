@@ -49,6 +49,8 @@ interface DraftRow {
 
 export interface DraftState {
     document: DraftDocument
+    /** The live schema the draft is based on, for marking pending changes. */
+    base: SchemaTable[]
     revision: number
     updatedAt: string
     /** The database changed since the draft was based on it. */
@@ -138,6 +140,7 @@ export async function getDraft(userId: string, projectId: string): Promise<Draft
 
     return {
         document: row.document,
+        base: row.base_document.tables,
         revision: row.revision,
         updatedAt: row.updated_at.toISOString(),
         stale: row.base_fingerprint !== liveFingerprint,
