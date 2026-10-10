@@ -76,11 +76,11 @@ export function validateTables(tables: SchemaTable[], base: SchemaTable[] = []):
     for (const table of tables) {
         const problem = nameProblem(table.name, 'Table')
         if (problem) error({ tableId: table.id, message: problem })
-        const key = `${table.schema}.${table.name}`
-        if (seen.has(key)) {
+        const qualifiedName = `${table.schema}.${table.name}`
+        if (seen.has(qualifiedName)) {
             error({ tableId: table.id, message: `Another table is already named "${table.name}"` })
         }
-        seen.set(key, table.id)
+        seen.set(qualifiedName, table.id)
 
         const before = baseById.get(table.id)
         if (before && before.schema !== table.schema) {

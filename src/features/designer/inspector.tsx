@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import {
     ArrowDown,
     ArrowRight,
@@ -61,7 +61,12 @@ function CommitInput({
     multiline?: boolean
 }) {
     const [draft, setDraft] = useState(value)
-    useEffect(() => setDraft(value), [value])
+    const [source, setSource] = useState(value)
+    // An outside change (undo, another field) replaces the local text.
+    if (source !== value) {
+        setSource(value)
+        setDraft(value)
+    }
     const commit = () => {
         if (draft !== value) onCommit(draft)
     }
@@ -490,7 +495,11 @@ function TypePicker({ value, onChange }: { value: string; onChange: (type: strin
     const parsed = parseType(value)
     const known = parsed.info !== undefined
     const [custom, setCustom] = useState(!known)
-    useEffect(() => setCustom(!parseType(value).info), [value])
+    const [source, setSource] = useState(value)
+    if (source !== value) {
+        setSource(value)
+        setCustom(!known)
+    }
     const build = (base: string, args: number[], array: boolean) =>
         `${base}${args.length ? `(${args.join(',')})` : ''}${array ? '[]' : ''}`
 

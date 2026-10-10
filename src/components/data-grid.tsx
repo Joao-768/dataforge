@@ -2,7 +2,6 @@
 
 import { useMemo, useRef, useState, type ReactNode } from 'react'
 import {
-    flexRender,
     getCoreRowModel,
     useReactTable,
     type ColumnDef,
@@ -298,7 +297,7 @@ export function DataGrid({
                                     aria-selected={isSelected || undefined}
                                     onDoubleClick={() => onRowOpen?.(item.index)}
                                     className={cn(
-                                        'absolute left-0 flex w-full border-b border-rule/70 hover:bg-raised/70',
+                                        'absolute left-0 flex w-full border-b border-rule/70 select-none hover:bg-raised/70',
                                         isSelected && 'bg-accent-soft/50 hover:bg-accent-soft/70',
                                     )}
                                     style={{

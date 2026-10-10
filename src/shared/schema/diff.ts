@@ -481,12 +481,12 @@ export function diffSchemas(base: SchemaTable[], target: SchemaTable[]): SchemaD
 
     // ── 7. primary and unique keys on existing tables ────────────────────────
     for (const { table, key, primary } of keysToAdd) {
-        const target = qualify(table.schema, table.name)
+        const qualified = qualify(table.schema, table.name)
         steps.push(
             primary
                 ? {
                       kind: 'add_primary_key',
-                      sql: `ALTER TABLE ${target} ADD ${primaryKeyClause(table, key)}`,
+                      sql: `ALTER TABLE ${qualified} ADD ${primaryKeyClause(table, key)}`,
                       summary: `Add primary key to ${label(table)}`,
                       table: label(table),
                       destructive: false,
@@ -494,7 +494,7 @@ export function diffSchemas(base: SchemaTable[], target: SchemaTable[]): SchemaD
                   }
                 : {
                       kind: 'add_unique',
-                      sql: `ALTER TABLE ${target} ADD ${uniqueClause(table, key)}`,
+                      sql: `ALTER TABLE ${qualified} ADD ${uniqueClause(table, key)}`,
                       summary: `Add unique constraint ${uniqueName(table, key)} to ${label(table)}`,
                       table: label(table),
                       destructive: false,

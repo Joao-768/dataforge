@@ -11,11 +11,12 @@ import { Badge } from '@/components/ui/badge'
 import { Menu } from '@/components/ui/menu'
 import { ShortcutsDialog } from '@/components/layout/shortcuts'
 import { api } from '@/lib/api'
+import { useNow } from '@/lib/use-now'
 import { cn } from '@/lib/utils'
 
-function hoursLeft(expiresAt: string | null): number | null {
+function hoursLeft(expiresAt: string | null, now: number): number | null {
     if (!expiresAt) return null
-    return Math.max(0, Math.round((new Date(expiresAt).getTime() - Date.now()) / 3_600_000))
+    return Math.max(0, Math.round((new Date(expiresAt).getTime() - now) / 3_600_000))
 }
 
 export function Masthead() {
@@ -23,9 +24,8 @@ export function Masthead() {
     const router = useRouter()
     const pathname = usePathname()
     const [shortcuts, setShortcuts] = useState(false)
-    const [remaining, setRemaining] = useState<number | null>(null)
-
-    useEffect(() => setRemaining(hoursLeft(user.expiresAt)), [user.expiresAt])
+    const now = useNow()
+    const remaining = now === null ? null : hoursLeft(user.expiresAt, now)
 
     // "?" opens the shortcut reference from anywhere outside a text field.
     useEffect(() => {

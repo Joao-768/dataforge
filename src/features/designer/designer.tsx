@@ -249,9 +249,12 @@ function DesignerWorkspace({ draft }: { draft: DraftState }) {
     const errors = issues.filter((issue) => issue.severity === 'error').length
     const pending = diff?.steps.length ?? 0
 
-    useEffect(() => {
+    // On small screens the inspector slides in whenever something new is selected.
+    const [lastSelection, setLastSelection] = useState(selection)
+    if (lastSelection !== selection) {
+        setLastSelection(selection)
         if (selection.kind !== 'none') setInspectorOpen(true)
-    }, [selection])
+    }
 
     const arrange = useCallback(() => {
         const current = useDesigner.getState().document
@@ -482,7 +485,7 @@ function DesignerWorkspace({ draft }: { draft: DraftState }) {
     )
 }
 
-function ReviewDialog({
+export function ReviewDialog({
     open,
     onClose,
     onCreated,
@@ -493,7 +496,8 @@ function ReviewDialog({
 }) {
     const projectId = useProjectId()
     const toast = useToast()
-    const [name, setName] = useState('')
+    const [nameOverride, setNameOverride] = useState<string | null>(null)
+    const [wasOpen, setWasOpen] = useState(open)
     const [creating, setCreating] = useState(false)
     const preview = useQuery({
         queryKey: ['migration-preview', projectId],
@@ -506,13 +510,14 @@ function ReviewDialog({
     const plan = preview.data
     const errors = plan?.issues.filter((issue) => issue.severity === 'error') ?? []
 
-    useEffect(() => {
-        if (open && plan && !name) {
-            const added = plan.summary.tablesAdded.map((table) => table.split('.')[1])
-            setName(added.length ? `Add ${added.join(', ')}` : 'Update schema')
-        }
-        if (!open) setName('')
-    }, [open, plan, name])
+    if (open !== wasOpen) {
+        setWasOpen(open)
+        setNameOverride(null)
+    }
+    // Suggested from the plan until the user types their own.
+    const added = plan?.summary.tablesAdded.map((table) => table.split('.')[1]) ?? []
+    const name = nameOverride ?? (added.length ? `Add ${added.join(', ')}` : 'Update schema')
+    const setName = setNameOverride
 
     async function create() {
         setCreating(true)

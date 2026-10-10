@@ -110,11 +110,13 @@ export function ConfirmDialog({
     busy?: boolean
 }) {
     const [typed, setTyped] = useState('')
+    const [wasOpen, setWasOpen] = useState(open)
     const ready = !confirmText || typed.trim() === confirmText
-
-    useEffect(() => {
+    // Closing clears what was typed, so the next confirmation starts empty.
+    if (open !== wasOpen) {
+        setWasOpen(open)
         if (!open) setTyped('')
-    }, [open])
+    }
 
     return (
         <Dialog

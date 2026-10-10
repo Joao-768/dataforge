@@ -34,3 +34,4 @@ npm-debug.log*
 .shot.mjs
 .debug.mjs
 .interact.mjs
+.full.mjs

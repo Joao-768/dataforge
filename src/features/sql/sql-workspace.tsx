@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import Editor, { type Monaco, type OnMount } from '@monaco-editor/react'
+import { Editor, type Monaco, type OnMount } from '@monaco-editor/react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Group, Panel, Separator, useDefaultLayout } from 'react-resizable-panels'
 import { format as formatSql } from 'sql-formatter'
@@ -24,7 +24,7 @@ import { ResultsPanel, type Outcome } from '@/features/sql/results'
 import { SqlSidebar, type SavedQuery } from '@/features/sql/sidebar'
 import { useQueryTabs } from '@/features/sql/tabs'
 
-type Editor = Parameters<OnMount>[0]
+type CodeEditor = Parameters<OnMount>[0]
 
 interface Submission {
     sql: string
@@ -44,18 +44,24 @@ export function SqlWorkspace() {
         queryFn: () => api<UserSettings>('/api/me/settings'),
     })
     const tabsState = useQueryTabs((state) => state.projects[projectId])
-    const { ensure, open, close, activate, update } = useQueryTabs.getState()
+    const ensure = useQueryTabs((state) => state.ensure)
+    const open = useQueryTabs((state) => state.open)
+    const close = useQueryTabs((state) => state.close)
+    const activate = useQueryTabs((state) => state.activate)
+    const update = useQueryTabs((state) => state.update)
     const [outcomes, setOutcomes] = useState<Record<string, Outcome>>({})
     const [mode, setMode] = useState<'read' | 'write'>('read')
     const [writeIntro, setWriteIntro] = useState(false)
     const [pendingWrite, setPendingWrite] = useState<Submission | null>(null)
     const [pendingAnalyze, setPendingAnalyze] = useState<Submission | null>(null)
     const [saving, setSaving] = useState(false)
-    const editorRef = useRef<Editor | null>(null)
+    const editorRef = useRef<CodeEditor | null>(null)
     const monacoRef = useRef<Monaco | null>(null)
     const runIdRef = useRef<string | null>(null)
     const schemaRef = useRef(schema.data)
-    schemaRef.current = schema.data
+    useEffect(() => {
+        schemaRef.current = schema.data
+    }, [schema.data])
     const vertical = useDefaultLayout({
         id: 'dataforge:sql:vertical',
         panelIds: ['editor', 'results'],
@@ -266,7 +272,9 @@ export function SqlWorkspace() {
 
     // Keep the latest handlers reachable from Monaco's commands.
     const handlers = useRef({ run, explain, format, cancel, save: () => setSaving(true) })
-    handlers.current = { run, explain, format, cancel, save: () => setSaving(true) }
+    useEffect(() => {
+        handlers.current = { run, explain, format, cancel, save: () => setSaving(true) }
+    })
 
     const onMount: OnMount = (editor, monaco) => {
         editorRef.current = editor
@@ -624,9 +632,12 @@ function SaveDialog({
 }) {
     const [name, setName] = useState(initialName)
     const [busy, setBusy] = useState(false)
-    useEffect(() => {
+    const [wasOpen, setWasOpen] = useState(open)
+    // Each time the dialog opens it starts from the tab's current title.
+    if (open !== wasOpen) {
+        setWasOpen(open)
         if (open) setName(initialName)
-    }, [open, initialName])
+    }
     return (
         <Dialog open={open} onClose={onClose} title="Save query" size="sm">
             <form

@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import { useNow } from '@/lib/use-now'
 import { CheckCircle2, Download, Loader2, OctagonX, Square, Terminal } from 'lucide-react'
 import { DataGrid, downloadText, toCsv } from '@/components/data-grid'
 import { Badge } from '@/components/ui/badge'
@@ -25,25 +26,28 @@ export type Outcome =
       }
 
 function Elapsed({ since }: { since: number }) {
-    const [now, setNow] = useState(() => Date.now())
-    useEffect(() => {
-        const timer = window.setInterval(() => setNow(Date.now()), 100)
-        return () => window.clearInterval(timer)
-    }, [])
-    return <span className="font-mono tabular-nums">{((now - since) / 1000).toFixed(1)}s</span>
+    const now = useNow() ?? since
+    return (
+        <span className="font-mono tabular-nums">
+            {(Math.max(0, now - since) / 1000).toFixed(1)}s
+        </span>
+    )
 }
 
 export function ResultsPanel({ outcome, onCancel }: { outcome: Outcome; onCancel: () => void }) {
     const [active, setActive] = useState(0)
+    const [shown, setShown] = useState(outcome)
     const results = outcome.kind === 'run' ? outcome.result.results : []
-    useEffect(() => {
+    // A new run opens on its error, or on its last result that has rows.
+    if (shown !== outcome) {
+        setShown(outcome)
         if (outcome.kind === 'run') {
             const withRows = outcome.result.results.findLastIndex(
                 (result) => result.fields.length > 0,
             )
             setActive(outcome.result.error ? outcome.result.results.length : Math.max(0, withRows))
         }
-    }, [outcome])
+    }
 
     if (outcome.kind === 'idle') {
         return (

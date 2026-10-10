@@ -61,7 +61,9 @@ export async function migrateAppDatabase(
                 applied.push(file)
             } catch (error) {
                 await client.query('ROLLBACK')
-                throw new Error(`Migration ${file} failed: ${(error as Error).message}`)
+                throw new Error(`Migration ${file} failed: ${(error as Error).message}`, {
+                    cause: error,
+                })
             }
         }
         return { applied }

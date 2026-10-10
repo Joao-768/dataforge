@@ -164,10 +164,10 @@ export function registerCompletion(monaco: Monaco, getSchema: () => LiveSchema |
                 }
                 const inSchema = relations.filter((candidate) => candidate.schema === dotted[1])
                 return {
-                    suggestions: inSchema.map((relation) => ({
-                        label: relation.name,
+                    suggestions: inSchema.map((candidate) => ({
+                        label: candidate.name,
                         kind: kinds.Struct,
-                        insertText: relation.name,
+                        insertText: candidate.name,
                         range,
                     })),
                 }
