@@ -5,7 +5,7 @@
     var mode = null
     try {
         mode = localStorage.getItem('dataforge-theme')
-    } catch (error) {
+    } catch {
         mode = null
     }
     // Dark unless the visitor chose light, or chose to follow the system.

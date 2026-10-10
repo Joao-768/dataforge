@@ -56,8 +56,9 @@ export async function listHistory(projectId: string, userId: string, limit = 50,
         `SELECT id::text, sql, mode, status, statement_count, row_count::text, duration_ms,
                 error_message, source, created_at
          FROM query_history
-         WHERE project_id = $1 AND user_id = $2 AND ($4::bigint IS NULL OR id < $4)
-         ORDER BY id DESC
+         WHERE project_id = $1 AND user_id = $2 AND ($4::bigint IS NULL OR query_history.id < $4)
+         -- Order by the bigint column, not the text alias selected above.
+         ORDER BY query_history.id DESC
          LIMIT $3`,
         [projectId, userId, limit, before ?? null],
     )

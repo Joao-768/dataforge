@@ -246,7 +246,9 @@ export interface ExplainResult {
 }
 
 /**
- * EXPLAIN of a single statement. Plain EXPLAIN only plans. EXPLAIN ANALYZE
+ * EXPLAIN of a single statement, as the role of the selected mode (PostgreSQL
+ * checks privileges while planning). Plain EXPLAIN only plans, inside a READ
+ * ONLY transaction. EXPLAIN ANALYZE
  * executes the statement, so it never runs implicitly: the client must ask
  * for it, it runs under the selected role, and its transaction is always
  * rolled back, so even in write mode the statement's changes are discarded.

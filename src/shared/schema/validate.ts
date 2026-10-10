@@ -32,6 +32,11 @@ function nameProblem(name: string, what: string): string | null {
  */
 export function defaultExpressionProblem(expression: string): string | null {
     if (expression.trim() === '') return 'Default is empty'
+    // Statement terminators and comments are refused before anything else:
+    // they are the shape of an injection, whatever else is wrong.
+    const outsideQuotes = expression.replace(/'(?:[^']|'')*'|"(?:[^"]|"")*"/g, "''")
+    if (outsideQuotes.includes(';')) return 'Default cannot contain a semicolon'
+    if (/--|\/\*/.test(outsideQuotes)) return 'Default cannot contain comments'
     let depth = 0
     let i = 0
     while (i < expression.length) {

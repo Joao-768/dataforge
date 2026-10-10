@@ -200,7 +200,7 @@ export function SqlWorkspace() {
         setOutcome(tabId, { kind: 'running', startedAt: Date.now(), mode: 'explain' })
         try {
             const result = await api<ExplainResult>(projectApi(projectId, '/query/explain'), {
-                body: { sql: submission.sql, analyze, mode: analyze ? mode : 'read' },
+                body: { sql: submission.sql, analyze, mode },
             })
             setOutcome(tabId, { kind: 'explain', result })
         } catch (error) {
