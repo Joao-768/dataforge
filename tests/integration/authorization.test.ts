@@ -9,7 +9,7 @@ import { getDraft } from '@/server/migrations/service'
 import { getProjectSummary } from '@/server/projects/service'
 import { executeScript } from '@/server/query/executor'
 import { projectTarget } from '@/server/targets/connections'
-import { useSession } from '../support/cookies'
+import { setSessionCookie } from '../support/cookies'
 import { actAs, createProjectWithSandbox, createUser } from '../support/factory'
 
 const request = (path: string, init: RequestInit = {}) =>
@@ -77,7 +77,7 @@ describe('project isolation between users', () => {
         )
         expect(deletion.status).toBe(404)
 
-        useSession(undefined)
+        setSessionCookie(undefined)
         expect((await projectRoute(request(`/api/projects/${projectId}`), params)).status).toBe(401)
 
         actAs(alice)

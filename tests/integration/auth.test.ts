@@ -11,7 +11,7 @@ import { currentUser, userForToken } from '@/server/auth/session'
 import { one, query } from '@/server/db/app-db'
 import { resetRateLimitsForTests } from '@/server/security/rate-limit'
 import { randomToken, sha256 } from '@/server/security/crypto'
-import { clearCookies, sessionToken, useSession } from '../support/cookies'
+import { clearCookies, sessionToken, setSessionCookie } from '../support/cookies'
 import { createUser } from '../support/factory'
 
 describe('registration and login', () => {
@@ -134,7 +134,7 @@ describe('changing the password', () => {
         resetRateLimitsForTests()
         await login({ email: first.user.email, password: first.password })
         const second = sessionToken()!
-        useSession(first.token)
+        setSessionCookie(first.token)
         await expect(
             changePassword(first.user, {
                 currentPassword: 'wrong',

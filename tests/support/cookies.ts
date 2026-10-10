@@ -1,5 +1,5 @@
 // In-memory stand-in for next/headers in integration tests. Each test picks
-// whose session cookie is "in the browser" with useSession().
+// whose session cookie is "in the browser" with setSessionCookie().
 
 const jar = new Map<string, string>()
 let userAgent = 'vitest'
@@ -24,7 +24,7 @@ export function sessionToken(): string | undefined {
     return jar.get('df_session')
 }
 
-export function useSession(token: string | undefined) {
+export function setSessionCookie(token: string | undefined) {
     if (token === undefined) jar.delete('df_session')
     else jar.set('df_session', token)
 }

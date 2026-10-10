@@ -4,7 +4,7 @@ import { currentUser, type SessionUser } from '@/server/auth/session'
 import { createProject } from '@/server/projects/service'
 import { provisionManaged } from '@/server/targets/connections'
 import { resetRateLimitsForTests } from '@/server/security/rate-limit'
-import { clearCookies, sessionToken, useSession } from './cookies'
+import { clearCookies, sessionToken, setSessionCookie } from './cookies'
 
 export interface TestUser {
     user: SessionUser
@@ -24,7 +24,7 @@ export async function createUser(name = 'Test User'): Promise<TestUser> {
 }
 
 export function actAs(user: TestUser) {
-    useSession(user.token)
+    setSessionCookie(user.token)
 }
 
 export async function createProjectWithSandbox(
