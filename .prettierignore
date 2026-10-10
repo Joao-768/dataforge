@@ -1,0 +1,7 @@
+node_modules
+.next
+public/monaco
+coverage
+playwright-report
+test-results
+package-lock.json

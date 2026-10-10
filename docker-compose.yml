@@ -1,0 +1,148 @@
+# DataForge local environment.
+#
+#   docker compose up --build
+#
+# starts the app on http://localhost:3300 with its own PostgreSQL servers.
+# The databases sit on an internal network with no published ports; only the
+# app (and Mailpit's inbox UI) are reachable from the host, and only on
+# 127.0.0.1. Values below are local defaults; override them in .env.
+
+name: dataforge
+
+x-postgres-health: &postgres-health
+    interval: 5s
+    timeout: 5s
+    retries: 20
+    start_period: 10s
+
+services:
+    # Application metadata: users, sessions, projects, encrypted credentials,
+    # drafts, query history and migration records.
+    app-db:
+        image: postgres:17-alpine
+        restart: unless-stopped
+        environment:
+            POSTGRES_DB: dataforge
+            POSTGRES_USER: dataforge
+            POSTGRES_PASSWORD: ${APP_DB_PASSWORD:-dataforge-local-only}
+        volumes:
+            - app-db-data:/var/lib/postgresql/data
+        networks: [backend]
+        healthcheck:
+            <<: *postgres-health
+            test: ['CMD-SHELL', 'pg_isready -U dataforge -d dataforge']
+        shm_size: 128mb
+
+    # Target server: the demo template and every sandbox database live here,
+    # isolated from the application database. Server-wide limits guard
+    # against runaway user queries.
+    target-db:
+        image: postgres:17-alpine
+        restart: unless-stopped
+        command:
+            - postgres
+            - -c
+            - max_connections=200
+            - -c
+            - temp_file_limit=256MB
+            - -c
+            - idle_in_transaction_session_timeout=60s
+            - -c
+            - log_min_duration_statement=-1
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: ${TARGET_DB_SUPERUSER_PASSWORD:-target-superuser-local-only}
+            DATAFORGE_PROVISIONER_PASSWORD: ${TARGET_DB_PROVISIONER_PASSWORD:-provisioner-local-only}
+        volumes:
+            - target-db-data:/var/lib/postgresql/data
+            - ./docker/target-db/01-provisioner.sh:/docker-entrypoint-initdb.d/01-provisioner.sh:ro
+        networks: [backend]
+        healthcheck:
+            <<: *postgres-health
+            test: ['CMD-SHELL', 'pg_isready -U postgres -d dataforge_admin']
+        shm_size: 256mb
+
+    # Catches password-reset email locally. Inbox at http://localhost:8025.
+    mailpit:
+        image: axllent/mailpit:v1.27
+        restart: unless-stopped
+        environment:
+            MP_SMTP_AUTH_ACCEPT_ANY: 'true'
+            MP_SMTP_AUTH_ALLOW_INSECURE: 'true'
+        ports:
+            - '127.0.0.1:${MAILPIT_UI_PORT:-8025}:8025'
+        networks: [backend, edge]
+        healthcheck:
+            test: ['CMD', '/mailpit', 'readyz']
+            interval: 5s
+            timeout: 5s
+            retries: 10
+
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        restart: unless-stopped
+        depends_on:
+            app-db:
+                condition: service_healthy
+            target-db:
+                condition: service_healthy
+            mailpit:
+                condition: service_healthy
+        environment:
+            NODE_ENV: production
+            APP_URL: ${APP_URL:-http://localhost:3300}
+            DATABASE_URL: postgres://dataforge:${APP_DB_PASSWORD:-dataforge-local-only}@app-db:5432/dataforge
+            TARGET_DB_HOST: target-db
+            TARGET_DB_PORT: '5432'
+            TARGET_DB_PUBLIC_HOST: ${TARGET_DB_PUBLIC_HOST:-target-db}
+            TARGET_DB_PROVISIONER_USER: dataforge_provisioner
+            TARGET_DB_PROVISIONER_PASSWORD: ${TARGET_DB_PROVISIONER_PASSWORD:-provisioner-local-only}
+            DATAFORGE_ENCRYPTION_KEY: ${DATAFORGE_ENCRYPTION_KEY:-}
+            DATAFORGE_KEY_FILE: /var/lib/dataforge/secrets/encryption.key
+            SMTP_URL: smtp://mailpit:1025
+            MAIL_FROM: ${MAIL_FROM:-DataForge <no-reply@dataforge.local>}
+            EXTERNAL_CONNECTIONS: ${EXTERNAL_CONNECTIONS:-disabled}
+            EXTERNAL_HOST_ALLOWLIST: ${EXTERNAL_HOST_ALLOWLIST:-}
+            DEMO_ENABLED: ${DEMO_ENABLED:-true}
+            LOG_LEVEL: ${LOG_LEVEL:-info}
+            SECURE_COOKIES: ${SECURE_COOKIES:-false}
+        volumes:
+            - app-secrets:/var/lib/dataforge/secrets
+        ports:
+            - '127.0.0.1:${APP_PORT:-3300}:3300'
+        networks: [backend, edge]
+        healthcheck:
+            test:
+                [
+                    'CMD',
+                    'node',
+                    '-e',
+                    "fetch('http://127.0.0.1:3300/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+                ]
+            interval: 10s
+            timeout: 5s
+            retries: 10
+            start_period: 30s
+        read_only: true
+        tmpfs:
+            - /tmp
+            - /app/.next/cache
+        security_opt:
+            - no-new-privileges:true
+        cap_drop: [ALL]
+        mem_limit: 1g
+        pids_limit: 512
+
+networks:
+    # No route out and no published ports: databases are reachable only from
+    # the app container.
+    backend:
+        internal: true
+    edge: {}
+
+volumes:
+    app-db-data:
+    target-db-data:
+    app-secrets:

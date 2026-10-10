@@ -1,0 +1,20 @@
+# Development overlay: publishes the two PostgreSQL servers and Mailpit's SMTP
+# port on 127.0.0.1 so `npm run dev` on the host can reach them.
+#
+#   npm run services   (docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d app-db target-db mailpit)
+
+services:
+    app-db:
+        ports:
+            - '127.0.0.1:${APP_DB_PORT:-5436}:5432'
+        networks: [backend, edge]
+
+    target-db:
+        ports:
+            - '127.0.0.1:${TARGET_DB_PORT:-5437}:5432'
+        networks: [backend, edge]
+
+    mailpit:
+        ports:
+            - '127.0.0.1:${MAILPIT_UI_PORT:-8025}:8025'
+            - '127.0.0.1:${MAILPIT_SMTP_PORT:-1025}:1025'
