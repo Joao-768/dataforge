@@ -35,3 +35,4 @@ npm-debug.log*
 .debug.mjs
 .interact.mjs
 .full.mjs
+/test-results/

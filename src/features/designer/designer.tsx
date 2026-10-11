@@ -27,6 +27,7 @@ import { Field } from '@/components/ui/field'
 import { useToast } from '@/components/ui/toast'
 import { SqlBlock } from '@/components/sql-block'
 import { api, ApiError, projectApi } from '@/lib/api'
+import { useMediaQuery } from '@/lib/use-media-query'
 import { cn } from '@/lib/utils'
 import type { DraftState, MigrationPlan } from '@/server/migrations/service'
 import { diffSchemas } from '@/shared/schema/diff'
@@ -223,6 +224,8 @@ function DesignerWorkspace({ draft }: { draft: DraftState }) {
     const [discarding, setDiscarding] = useState(false)
     const [inspectorOpen, setInspectorOpen] = useState(false)
     const layout = useDefaultLayout({ id: 'dataforge:designer', panelIds: ['canvas', 'inspector'] })
+    // One inspector at a time: a side panel on wide screens, an overlay otherwise.
+    const wide = useMediaQuery('(min-width: 1024px)')
 
     const diff = useMemo(
         () => (document ? diffSchemas(base, document.tables) : null),
@@ -432,15 +435,17 @@ function DesignerWorkspace({ draft }: { draft: DraftState }) {
                         maxSize="45"
                         className="hidden bg-panel lg:block"
                     >
-                        <aside
-                            aria-label="Inspector"
-                            className="scrollbar-thin h-full overflow-y-auto"
-                        >
-                            <Inspector issues={issues} />
-                        </aside>
+                        {wide ? (
+                            <aside
+                                aria-label="Inspector"
+                                className="scrollbar-thin h-full overflow-y-auto"
+                            >
+                                <Inspector issues={issues} />
+                            </aside>
+                        ) : null}
                     </Panel>
                 </Group>
-                {inspectorOpen ? (
+                {inspectorOpen && !wide ? (
                     <aside
                         aria-label="Inspector"
                         className="scrollbar-thin absolute inset-y-0 right-0 z-20 w-[min(100%,22rem)] animate-fade-in overflow-y-auto border-l border-rule bg-panel shadow-2xl lg:hidden"
@@ -495,6 +500,7 @@ export function ReviewDialog({
     onCreated: (id: string) => void
 }) {
     const projectId = useProjectId()
+    const queryClient = useQueryClient()
     const toast = useToast()
     const [nameOverride, setNameOverride] = useState<string | null>(null)
     const [wasOpen, setWasOpen] = useState(open)
@@ -525,6 +531,7 @@ export function ReviewDialog({
             const { id } = await api<{ id: string }>(projectApi(projectId, '/migrations'), {
                 body: { name },
             })
+            await queryClient.invalidateQueries({ queryKey: ['migrations', projectId] })
             toast('Migration created. Review and apply it.', 'success')
             onCreated(id)
         } catch (error) {

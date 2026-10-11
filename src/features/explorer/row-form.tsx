@@ -67,7 +67,7 @@ export function RowForm({
                 return [
                     column.name,
                     {
-                        mode: useDefault ? 'default' : column.nullable ? 'null' : 'value',
+                        mode: useDefault ? 'default' : 'value',
                         value: '',
                     },
                 ]

@@ -35,6 +35,7 @@ const schema = z.object({
     DEMO_ENABLED: bool.default(true),
     DEMO_TTL_HOURS: z.coerce.number().min(1).max(168).default(24),
     DEMO_MAX_ACTIVE: z.coerce.number().int().min(1).max(500).default(40),
+    DEMO_STARTS_PER_HOUR: z.coerce.number().int().min(1).max(1000).default(6),
 
     SANDBOX_MAX_PER_USER: z.coerce.number().int().min(1).max(20).default(3),
     SANDBOX_MAX_TOTAL: z.coerce.number().int().min(1).max(2000).default(200),

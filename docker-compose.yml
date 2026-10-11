@@ -106,6 +106,7 @@ services:
             EXTERNAL_CONNECTIONS: ${EXTERNAL_CONNECTIONS:-disabled}
             EXTERNAL_HOST_ALLOWLIST: ${EXTERNAL_HOST_ALLOWLIST:-}
             DEMO_ENABLED: ${DEMO_ENABLED:-true}
+            DEMO_STARTS_PER_HOUR: ${DEMO_STARTS_PER_HOUR:-6}
             LOG_LEVEL: ${LOG_LEVEL:-info}
             SECURE_COOKIES: ${SECURE_COOKIES:-false}
         volumes:
