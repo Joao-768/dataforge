@@ -13,7 +13,7 @@ export const emailSchema = z
 
 export const passwordSchema = z
     .string()
-    .min(10, 'Use at least 10 characters.')
+    .min(8, 'Use at least 8 characters.')
     .max(200, 'Use at most 200 characters.')
 
 export const nameSchema = z

@@ -283,7 +283,7 @@ function Password() {
                     type="password"
                     autoComplete="new-password"
                     error={errors.newPassword}
-                    hint="At least 10 characters."
+                    hint="At least 8 characters."
                 />
                 <div className="flex justify-end sm:col-span-2">
                     <Button type="submit" variant="primary" busy={busy}>

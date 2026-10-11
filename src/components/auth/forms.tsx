@@ -132,7 +132,7 @@ export function RegisterForm() {
                 type="password"
                 autoComplete="new-password"
                 error={errors.password}
-                hint="At least 10 characters."
+                hint="At least 8 characters."
             />
             <Button type="submit" variant="primary" size="md" busy={busy} className="w-full">
                 Create account
@@ -204,7 +204,7 @@ export function ResetPasswordForm() {
                 autoComplete="new-password"
                 autoFocus
                 error={errors.password}
-                hint="At least 10 characters. You will be signed out everywhere."
+                hint="At least 8 characters. You will be signed out everywhere."
             />
             <Button type="submit" variant="primary" size="md" busy={busy} className="w-full">
                 Set new password
