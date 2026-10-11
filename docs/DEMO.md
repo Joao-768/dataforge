@@ -8,7 +8,7 @@ Open http://localhost:3300. Scroll once to show the workflow section (canvas, ge
 
 ## 2. Overview (10 s)
 
-The *Storefront* project opens on its own copy of the e-commerce database: 6 tables, about 17,700 rows, 6 relationships. Point at **Sandbox ready** and the PostgreSQL version in the project bar.
+The _Storefront_ project opens on its own copy of the e-commerce database: 6 tables, about 17,700 rows, 6 relationships. Point at **Sandbox ready** and the PostgreSQL version in the project bar.
 
 ## 3. Schema designer (40 s)
 
@@ -20,7 +20,7 @@ The *Storefront* project opens on its own copy of the e-commerce database: 6 tab
 
 ## 4. Migration (20 s)
 
-Create the migration, then **Apply**. It runs in one transaction and turns **Applied** with its duration. Back in the designer, the draft reads *In sync with the database*.
+Create the migration, then **Apply**. It runs in one transaction and turns **Applied** with its duration. Back in the designer, the draft reads _In sync with the database_.
 
 ## 5. SQL editor (40 s)
 

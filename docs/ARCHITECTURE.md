@@ -4,11 +4,11 @@
 
 DataForge never mixes its own data with the data it manages.
 
-| | Application database (`app-db`) | Target server (`target-db`) |
-| --- | --- | --- |
-| Holds | Users, sessions, reset tokens, settings, projects, connections (encrypted credentials), schema drafts, migrations, saved queries, query history, activity | The demo template database and one database per sandbox |
-| Accessed by | The app's own pool (`src/server/db/app-db.ts`) | Per-sandbox roles through small per-role pools (`src/server/targets/pools.ts`), and the provisioner for administration |
-| Schema | `db/migrations/*.sql`, applied at startup with an advisory lock and checksums | Whatever users design |
+|             | Application database (`app-db`)                                                                                                                           | Target server (`target-db`)                                                                                            |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Holds       | Users, sessions, reset tokens, settings, projects, connections (encrypted credentials), schema drafts, migrations, saved queries, query history, activity | The demo template database and one database per sandbox                                                                |
+| Accessed by | The app's own pool (`src/server/db/app-db.ts`)                                                                                                            | Per-sandbox roles through small per-role pools (`src/server/targets/pools.ts`), and the provisioner for administration |
+| Schema      | `db/migrations/*.sql`, applied at startup with an advisory lock and checksums                                                                             | Whatever users design                                                                                                  |
 
 External databases (when allowed) take the place of a sandbox; everything else is the same.
 

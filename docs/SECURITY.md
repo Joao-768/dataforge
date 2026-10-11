@@ -6,13 +6,13 @@ DataForge executes SQL written by its users. The design assumes every user, and 
 
 ### Who can reach what
 
-| Actor | Can | Cannot |
-| --- | --- | --- |
-| Browser | Call the API with a session cookie | See any database password or connection string; reach a database directly |
-| Signed-in user | Act on their own projects | Read or change another user's project: every project-scoped service starts with `requireProject`, which answers 404 for projects they do not own (ids cannot be probed) |
-| Sandbox read role | `CONNECT` to its database, `USAGE` on `public`, `SELECT` on its tables and sequences | Write, create temp tables, read server files, create extensions, connect to any other database (CONNECT is revoked from PUBLIC everywhere) |
-| Sandbox owner role | Own and change objects in its database's `public` schema | Create schemas, roles or databases; connect elsewhere |
-| Provisioner (the app) | Create and drop sandbox databases and roles, signal their backends | Anything a superuser can; it is not one |
+| Actor                 | Can                                                                                  | Cannot                                                                                                                                                                  |
+| --------------------- | ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Browser               | Call the API with a session cookie                                                   | See any database password or connection string; reach a database directly                                                                                               |
+| Signed-in user        | Act on their own projects                                                            | Read or change another user's project: every project-scoped service starts with `requireProject`, which answers 404 for projects they do not own (ids cannot be probed) |
+| Sandbox read role     | `CONNECT` to its database, `USAGE` on `public`, `SELECT` on its tables and sequences | Write, create temp tables, read server files, create extensions, connect to any other database (CONNECT is revoked from PUBLIC everywhere)                              |
+| Sandbox owner role    | Own and change objects in its database's `public` schema                             | Create schemas, roles or databases; connect elsewhere                                                                                                                   |
+| Provisioner (the app) | Create and drop sandbox databases and roles, signal their backends                   | Anything a superuser can; it is not one                                                                                                                                 |
 
 These boundaries are exercised by the integration tests in `tests/integration/sandbox.test.ts` and `authorization.test.ts`.
 

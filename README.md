@@ -28,18 +28,18 @@ Deeper documentation lives in [`docs/`](docs): [architecture](docs/ARCHITECTURE.
 
 ## What it does
 
-| Area | What is real about it |
-| --- | --- |
-| **Projects** | Each project owns one PostgreSQL database, its schema draft, migrations, saved queries, history and activity feed. Rename, describe, delete (typed confirmation). |
-| **Databases** | One click creates a private sandbox database (empty, or with an e-commerce sample) on an isolated PostgreSQL server, with its own owner and read-only roles. External PostgreSQL connections work when the deployment allowlists hosts; they are disabled by default. |
+| Area                | What is real about it                                                                                                                                                                                                                                                                                                                                                    |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Projects**        | Each project owns one PostgreSQL database, its schema draft, migrations, saved queries, history and activity feed. Rename, describe, delete (typed confirmation).                                                                                                                                                                                                        |
+| **Databases**       | One click creates a private sandbox database (empty, or with an e-commerce sample) on an isolated PostgreSQL server, with its own owner and read-only roles. External PostgreSQL connections work when the deployment allowlists hosts; they are disabled by default.                                                                                                    |
 | **Schema designer** | React Flow canvas of tables, columns, primary keys, unique constraints and foreign keys drawn with crow's-foot notation. Drag a column onto a key to create a relationship. Inspector for types, nullability, defaults, identity, comments and referential actions. Undo/redo, auto-layout (dagre), fit view, persisted positions, autosave with optimistic concurrency. |
-| **Migrations** | The draft is diffed against the live catalog by object identity (table OID, column attnum), so renames are renames. Ordered, one-statement-per-step DDL with destructive steps flagged. Applied in one transaction; marked applied only after COMMIT; interrupted runs settled with `pg_xact_status()`. Stale drafts and stale migrations are refused. |
-| **SQL editor** | Monaco with PostgreSQL highlighting, schema-aware completion (tables, aliased columns), tabs persisted per project, formatting, saved queries, history, keyboard shortcuts, cancellation. Read-only by default; write mode is an explicit, confirmed switch. Error markers at the exact position PostgreSQL reports. |
-| **Query analysis** | EXPLAIN plans as an annotated tree (self time or self cost, estimated vs actual rows, loops, buffers), clearly labelled estimated or measured. Warnings for misestimates, discarded rows and on-disk sorts. EXPLAIN ANALYZE only on request, always rolled back. |
-| **Data explorer** | Server-side pagination, sorting, typed filters and text search; row inspector; column metadata; insert, edit and bulk delete by primary key, with PostgreSQL's own casting and constraint errors. |
-| **Analytics** | Query counts, success rate, p50/p95, slowest queries and frequent errors from the app's history; table sizes, scans, dead rows, cache hit ratio and unused indexes from `pg_stat_*`. Nothing is simulated. |
-| **Import / export** | Streamed CSV import with preview, auto column mapping, "all or nothing" or "skip invalid rows" (savepoints isolate bad lines, each reported with its error). Streamed CSV and INSERT exports, and a full schema SQL export. |
-| **Accounts** | Registration, login, logout, password reset by email (Mailpit locally), profile, password change (signs out other sessions), preferences, account deletion. |
+| **Migrations**      | The draft is diffed against the live catalog by object identity (table OID, column attnum), so renames are renames. Ordered, one-statement-per-step DDL with destructive steps flagged. Applied in one transaction; marked applied only after COMMIT; interrupted runs settled with `pg_xact_status()`. Stale drafts and stale migrations are refused.                   |
+| **SQL editor**      | Monaco with PostgreSQL highlighting, schema-aware completion (tables, aliased columns), tabs persisted per project, formatting, saved queries, history, keyboard shortcuts, cancellation. Read-only by default; write mode is an explicit, confirmed switch. Error markers at the exact position PostgreSQL reports.                                                     |
+| **Query analysis**  | EXPLAIN plans as an annotated tree (self time or self cost, estimated vs actual rows, loops, buffers), clearly labelled estimated or measured. Warnings for misestimates, discarded rows and on-disk sorts. EXPLAIN ANALYZE only on request, always rolled back.                                                                                                         |
+| **Data explorer**   | Server-side pagination, sorting, typed filters and text search; row inspector; column metadata; insert, edit and bulk delete by primary key, with PostgreSQL's own casting and constraint errors.                                                                                                                                                                        |
+| **Analytics**       | Query counts, success rate, p50/p95, slowest queries and frequent errors from the app's history; table sizes, scans, dead rows, cache hit ratio and unused indexes from `pg_stat_*`. Nothing is simulated.                                                                                                                                                               |
+| **Import / export** | Streamed CSV import with preview, auto column mapping, "all or nothing" or "skip invalid rows" (savepoints isolate bad lines, each reported with its error). Streamed CSV and INSERT exports, and a full schema SQL export.                                                                                                                                              |
+| **Accounts**        | Registration, login, logout, password reset by email (Mailpit locally), profile, password change (signs out other sessions), preferences, account deletion.                                                                                                                                                                                                              |
 
 ---
 
@@ -53,11 +53,11 @@ docker compose up --build
 
 Then open **http://localhost:3300** and choose **Explore the live demo**, or create an account.
 
-| Service | Address | Notes |
-| --- | --- | --- |
-| App | http://localhost:3300 | Bound to 127.0.0.1 only |
-| Mailpit inbox | http://localhost:8025 | Password-reset emails land here |
-| Databases | not published | Reachable only from the app container |
+| Service       | Address               | Notes                                 |
+| ------------- | --------------------- | ------------------------------------- |
+| App           | http://localhost:3300 | Bound to 127.0.0.1 only               |
+| Mailpit inbox | http://localhost:8025 | Password-reset emails land here       |
+| Databases     | not published         | Reachable only from the app container |
 
 The first start migrates the application database and builds the demo template (about a second). Stop with `docker compose down`; add `-v` to delete all data.
 
@@ -78,16 +78,16 @@ npm run dev            # http://localhost:3300
 
 `npm run services` uses `docker-compose.dev.yml`, which publishes the application database on `127.0.0.1:5436`, the target server on `127.0.0.1:5437` and Mailpit SMTP on `127.0.0.1:1025`. The app migrates its database on startup; `npm run db:migrate` does it by hand.
 
-| Script | Purpose |
-| --- | --- |
-| `npm run dev` | Next.js dev server on port 3300 |
-| `npm run build` / `npm start` | Production build and server |
-| `npm run typecheck` | `tsc --noEmit` (strict, `noUncheckedIndexedAccess`) |
-| `npm run lint` | oxlint (correctness errors, suspicious warnings, React rules) |
-| `npm test` | Unit and component tests |
-| `npm run test:integration` | Integration tests against a disposable PostgreSQL 17 (Testcontainers) |
-| `npm run test:e2e` | Playwright end-to-end tests (needs `npm run services`) |
-| `npm run stack` | `docker compose up --build -d` |
+| Script                        | Purpose                                                               |
+| ----------------------------- | --------------------------------------------------------------------- |
+| `npm run dev`                 | Next.js dev server on port 3300                                       |
+| `npm run build` / `npm start` | Production build and server                                           |
+| `npm run typecheck`           | `tsc --noEmit` (strict, `noUncheckedIndexedAccess`)                   |
+| `npm run lint`                | oxlint (correctness errors, suspicious warnings, React rules)         |
+| `npm test`                    | Unit and component tests                                              |
+| `npm run test:integration`    | Integration tests against a disposable PostgreSQL 17 (Testcontainers) |
+| `npm run test:e2e`            | Playwright end-to-end tests (needs `npm run services`)                |
+| `npm run stack`               | `docker compose up --build -d`                                        |
 
 ---
 
@@ -108,17 +108,17 @@ One Next.js 16 application (App Router, TypeScript) with two separate PostgreSQL
 
 Code layout:
 
-| Path | Contents |
-| --- | --- |
-| `src/app` | Pages (App Router) and API route handlers (thin: parse, authorise, call a service) |
-| `src/server` | Server-only modules: config, auth, sessions, crypto, rate limits, HTTP wrapper, provisioning, connection pools, the guarded query harness, introspection, migrations, data explorer, import/export, analytics, demo |
-| `src/shared` | Code used by both sides: the schema model, PostgreSQL type catalog, validation, diff engine, DDL generation, SQL splitter, identifier quoting, zod schemas |
-| `src/features` | UI by area: designer, sql, explorer, migrations, analytics, transfer, settings, projects, workspace |
-| `src/components` | Shared UI: buttons, fields, dialogs, menus, toasts, data grid, SQL highlighting |
-| `db/migrations` | Application database migrations (forward-only, checksummed) |
-| `db/demo` | The e-commerce demo dataset (deterministic SQL) |
-| `docker/` | Target server initialisation (provisioner role) |
-| `tests/`, `e2e/` | Vitest unit/component/integration suites and Playwright specs |
+| Path             | Contents                                                                                                                                                                                                            |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/app`        | Pages (App Router) and API route handlers (thin: parse, authorise, call a service)                                                                                                                                  |
+| `src/server`     | Server-only modules: config, auth, sessions, crypto, rate limits, HTTP wrapper, provisioning, connection pools, the guarded query harness, introspection, migrations, data explorer, import/export, analytics, demo |
+| `src/shared`     | Code used by both sides: the schema model, PostgreSQL type catalog, validation, diff engine, DDL generation, SQL splitter, identifier quoting, zod schemas                                                          |
+| `src/features`   | UI by area: designer, sql, explorer, migrations, analytics, transfer, settings, projects, workspace                                                                                                                 |
+| `src/components` | Shared UI: buttons, fields, dialogs, menus, toasts, data grid, SQL highlighting                                                                                                                                     |
+| `db/migrations`  | Application database migrations (forward-only, checksummed)                                                                                                                                                         |
+| `db/demo`        | The e-commerce demo dataset (deterministic SQL)                                                                                                                                                                     |
+| `docker/`        | Target server initialisation (provisioner role)                                                                                                                                                                     |
+| `tests/`, `e2e/` | Vitest unit/component/integration suites and Playwright specs                                                                                                                                                       |
 
 Key flows are described in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
@@ -140,7 +140,7 @@ The short version (full detail in [docs/SECURITY.md](docs/SECURITY.md)):
 
 ## Demo mode
 
-**Explore the live demo** creates a guest account, a project called *Storefront* and a private copy of the e-commerce database (6 tables, about 17,700 rows: customers, categories, products, orders, order items, payments, plus a view), cloned from a template in well under a second. Six example queries are saved in the project.
+**Explore the live demo** creates a guest account, a project called _Storefront_ and a private copy of the e-commerce database (6 tables, about 17,700 rows: customers, categories, products, orders, order items, payments, plus a view), cloned from a template in well under a second. Six example queries are saved in the project.
 
 Visitors can use everything, including write mode, migrations and imports, because each copy belongs to one visitor. Guests expire after `DEMO_TTL_HOURS` (24 by default); a sweep every 10 minutes drops expired guests and their databases, and sandbox databases left behind by a crash. Demo creation is limited per address and globally, and stops at `DEMO_MAX_ACTIVE`.
 
@@ -150,12 +150,12 @@ A walkthrough suited to a short video is in [docs/DEMO.md](docs/DEMO.md).
 
 ## Testing
 
-| Suite | Command | What it covers |
-| --- | --- | --- |
-| Unit | `npm test` | SQL splitter, identifier quoting, type catalog, diff engine (renames, swaps, dependency order, destructive flags), validation, designer operations, encryption, password hashing, rate limits, CSRF checks, the SSRF guard |
-| Component | `npm test` | Grid cells, CSV quoting, typed confirmation dialog, plan view labelling and warnings |
+| Suite       | Command                    | What it covers                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| ----------- | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Unit        | `npm test`                 | SQL splitter, identifier quoting, type catalog, diff engine (renames, swaps, dependency order, destructive flags), validation, designer operations, encryption, password hashing, rate limits, CSRF checks, the SSRF guard                                                                                                                                                                                                                                                                                      |
+| Component   | `npm test`                 | Grid cells, CSV quoting, typed confirmation dialog, plan view labelling and warnings                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | Integration | `npm run test:integration` | Against a disposable PostgreSQL 17 started by Testcontainers and initialised like production: authentication and sessions, password reset, cross-user isolation (service and HTTP layer), sandbox role boundaries, query execution and escape attempts, timeouts and cancellation, EXPLAIN, introspection, migrations (apply, failure rollback, destructive confirmation, staleness, optimistic concurrency), schema export round trip, data explorer writes, CSV import and export, demo isolation and cleanup |
-| End to end | `npm run test:e2e` | Demo journey, register → design → migrate → insert → query, authentication guards, CSV import through the UI |
+| End to end  | `npm run test:e2e`         | Demo journey, register → design → migrate → insert → query, authentication guards, CSV import through the UI                                                                                                                                                                                                                                                                                                                                                                                                    |
 
 Results at the time of writing: 115 unit and component tests, 53 integration tests and 6 end-to-end tests passing; type check, lint and production build clean.
 
@@ -165,24 +165,24 @@ Results at the time of writing: 115 unit and component tests, 53 integration tes
 
 All variables are validated at startup (`src/server/config.ts`); invalid configuration stops the server with a precise message. `.env.example` lists every one with comments.
 
-| Variable | Default | Purpose |
-| --- | --- | --- |
-| `APP_URL` | `http://localhost:3300` | Public URL: email links and the CSRF origin |
-| `DATABASE_URL` | (required) | Application database |
-| `TARGET_DB_HOST`, `TARGET_DB_PORT` | `localhost`, `5437` | Target server for sandboxes |
-| `TARGET_DB_PROVISIONER_USER` / `_PASSWORD` | `dataforge_provisioner` / (required) | Non-superuser provisioning role |
-| `TARGET_DB_ADMIN_DATABASE` | `dataforge_admin` | Provisioner's maintenance database |
-| `DATAFORGE_ENCRYPTION_KEY` | empty | 32 bytes, base64. When empty, a key is generated into `DATAFORGE_KEY_FILE` |
-| `DATAFORGE_KEY_FILE` | `.data/encryption.key` | Key file location (a volume in Docker) |
-| `SMTP_URL`, `MAIL_FROM` | Mailpit in Compose | Outgoing email |
-| `EXTERNAL_CONNECTIONS` | `disabled` | `disabled` or `allowlist` |
-| `EXTERNAL_HOST_ALLOWLIST` | empty | Hostnames, `*.domain`, IPs or CIDRs |
-| `DEMO_ENABLED`, `DEMO_TTL_HOURS`, `DEMO_MAX_ACTIVE`, `DEMO_STARTS_PER_HOUR` | `true`, `24`, `40`, `6` | Demo controls |
-| `SANDBOX_MAX_PER_USER`, `SANDBOX_MAX_TOTAL`, `SANDBOX_MAX_SIZE_MB` | `3`, `200`, `100` | Sandbox limits; writes pause above the size limit |
-| `QUERY_TIMEOUT_MS`, `QUERY_MAX_ROWS`, `IMPORT_MAX_BYTES` | `15000`, `1000`, `10485760` | Query and import limits |
-| `SECURE_COOKIES` | `true` when `APP_URL` is https | Cookie `Secure` flag |
-| `TRUST_PROXY` | `false` | Use the last `X-Forwarded-For` hop (behind a trusted proxy) |
-| `LOG_LEVEL` | `info` | pino log level |
+| Variable                                                                    | Default                              | Purpose                                                                    |
+| --------------------------------------------------------------------------- | ------------------------------------ | -------------------------------------------------------------------------- |
+| `APP_URL`                                                                   | `http://localhost:3300`              | Public URL: email links and the CSRF origin                                |
+| `DATABASE_URL`                                                              | (required)                           | Application database                                                       |
+| `TARGET_DB_HOST`, `TARGET_DB_PORT`                                          | `localhost`, `5437`                  | Target server for sandboxes                                                |
+| `TARGET_DB_PROVISIONER_USER` / `_PASSWORD`                                  | `dataforge_provisioner` / (required) | Non-superuser provisioning role                                            |
+| `TARGET_DB_ADMIN_DATABASE`                                                  | `dataforge_admin`                    | Provisioner's maintenance database                                         |
+| `DATAFORGE_ENCRYPTION_KEY`                                                  | empty                                | 32 bytes, base64. When empty, a key is generated into `DATAFORGE_KEY_FILE` |
+| `DATAFORGE_KEY_FILE`                                                        | `.data/encryption.key`               | Key file location (a volume in Docker)                                     |
+| `SMTP_URL`, `MAIL_FROM`                                                     | Mailpit in Compose                   | Outgoing email                                                             |
+| `EXTERNAL_CONNECTIONS`                                                      | `disabled`                           | `disabled` or `allowlist`                                                  |
+| `EXTERNAL_HOST_ALLOWLIST`                                                   | empty                                | Hostnames, `*.domain`, IPs or CIDRs                                        |
+| `DEMO_ENABLED`, `DEMO_TTL_HOURS`, `DEMO_MAX_ACTIVE`, `DEMO_STARTS_PER_HOUR` | `true`, `24`, `40`, `6`              | Demo controls                                                              |
+| `SANDBOX_MAX_PER_USER`, `SANDBOX_MAX_TOTAL`, `SANDBOX_MAX_SIZE_MB`          | `3`, `200`, `100`                    | Sandbox limits; writes pause above the size limit                          |
+| `QUERY_TIMEOUT_MS`, `QUERY_MAX_ROWS`, `IMPORT_MAX_BYTES`                    | `15000`, `1000`, `10485760`          | Query and import limits                                                    |
+| `SECURE_COOKIES`                                                            | `true` when `APP_URL` is https       | Cookie `Secure` flag                                                       |
+| `TRUST_PROXY`                                                               | `false`                              | Use the last `X-Forwarded-For` hop (behind a trusted proxy)                |
+| `LOG_LEVEL`                                                                 | `info`                               | pino log level                                                             |
 
 Docker Compose also reads `APP_DB_PASSWORD`, `TARGET_DB_SUPERUSER_PASSWORD`, `TARGET_DB_PROVISIONER_PASSWORD`, `APP_PORT` and `MAILPIT_UI_PORT`.
 
