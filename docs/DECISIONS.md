@@ -44,4 +44,4 @@ Integration tests start a real PostgreSQL 17 container and initialise it exactly
 
 ## Visual identity
 
-DataForge follows the shared language of the portfolio: neutral ink and paper tokens per theme with dark as the default, hairline rules, uppercase mono labels, one accent, status colours reserved for state, the native-dialog and toast patterns from Pulse Monitor and the React Flow canvas conventions from Workflow Engine. Its accent is ember, chosen to be distinct from CollabCode's cream and Workflow Engine's periwinkle, and used only for what is active, selected or focused.
+DataForge follows the shared language of the portfolio: neutral ink and paper tokens per theme with dark as the default, hairline rules, uppercase mono labels, status colours reserved for state, the native-dialog and toast patterns from Pulse Monitor and the React Flow canvas conventions from Workflow Engine. Like Pulse Monitor, it is black and white: what is active, selected or focused is marked in the strong ink, and the only hues are functional (status, and syntax highlighting with CollabCode's palette).

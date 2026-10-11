@@ -4,12 +4,12 @@
  * DataForge tokens.
  *
  * Same family as CollabCode, Pulse Monitor and Workflow Engine: ink on a pure
- * background, neutral greys with no tint, hairline rules, uppercase mono
- * labels and exactly one hue. DataForge's hue is ember, the forge at work: it
- * marks what is active or selected (the current tab, the selected table, the
- * relationship being drawn, keyboard focus) and primary keys on the canvas.
- * Primary buttons stay ink. Status colours mean one thing each and are used
- * only where state matters.
+ * background, neutral greys with no tint, hairline rules and uppercase mono
+ * labels. Like Pulse Monitor, the interface is black and white: the "accent"
+ * is the strong ink itself, marking what is active or selected (the current
+ * tab, the selected table, the relationship being drawn, keyboard focus).
+ * The only hues on screen are functional: status colours that mean one thing
+ * each, and syntax highlighting in code (the CollabCode palette).
  *
  * Dark is the default. The theme is set on <html data-theme> by /theme.js
  * before first paint.
@@ -30,9 +30,9 @@
     --on-ink: #ffffff;
     --ink-hover: #000000;
 
-    --accent: #c2410c;
-    --accent-soft: #fdeee5;
-    --accent-text: #9a3412;
+    --accent: #111111;
+    --accent-soft: #ededed;
+    --accent-text: #111111;
 
     --ok: #1a7f37;
     --ok-soft: #dcf3e4;
@@ -50,11 +50,11 @@
     --minimap-mask: rgb(240 240 240 / 0.7);
 
     /* SQL syntax, shared by Monaco and static code blocks. */
-    --syntax-keyword: #9a3412;
+    --syntax-keyword: #cf222e;
     --syntax-string: #116329;
     --syntax-number: #0550ae;
     --syntax-comment: #8a8a8a;
-    --syntax-type: #6639ba;
+    --syntax-type: #8250df;
 
     --scrim: rgb(17 17 17 / 0.35);
     --shadow: rgb(0 0 0 / 0.12);
@@ -79,9 +79,9 @@
     --on-ink: #000000;
     --ink-hover: #ffffff;
 
-    --accent: #ff8a4c;
-    --accent-soft: #2a160c;
-    --accent-text: #ffb184;
+    --accent: #ededed;
+    --accent-soft: #1f1f1f;
+    --accent-text: #ededed;
 
     --ok: #3fb950;
     --ok-soft: #0f2a17;
@@ -97,7 +97,7 @@
     --edge-active: #bdbdbd;
     --minimap-mask: rgb(0 0 0 / 0.6);
 
-    --syntax-keyword: #ff9e6b;
+    --syntax-keyword: #ff9492;
     --syntax-string: #7ee787;
     --syntax-number: #79c0ff;
     --syntax-comment: #6b6b6b;
