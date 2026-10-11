@@ -13,6 +13,7 @@ import { Menu } from '@/components/ui/menu'
 import { useToast } from '@/components/ui/toast'
 import { api, ApiError, projectApi } from '@/lib/api'
 import { useResolvedTheme } from '@/lib/theme'
+import { useMediaQuery } from '@/lib/use-media-query'
 import { cn } from '@/lib/utils'
 import type { ExplainResult, RunResult } from '@/server/query/executor'
 import type { UserSettings } from '@/server/auth/service'
@@ -66,9 +67,11 @@ export function SqlWorkspace() {
         id: 'dataforge:sql:vertical',
         panelIds: ['editor', 'results'],
     })
+    // The schema/saved/history sidebar only exists from tablet width up.
+    const wide = useMediaQuery('(min-width: 768px)')
     const horizontal = useDefaultLayout({
         id: 'dataforge:sql:horizontal',
-        panelIds: ['sidebar', 'main'],
+        panelIds: wide ? ['sidebar', 'main'] : ['main'],
     })
 
     useEffect(() => ensure(projectId), [ensure, projectId])
@@ -326,23 +329,26 @@ export function SqlWorkspace() {
                 defaultLayout={horizontal.defaultLayout}
                 onLayoutChanged={horizontal.onLayoutChanged}
             >
-                <Panel
-                    id="sidebar"
-                    defaultSize="20"
-                    minSize="14"
-                    maxSize="40"
-                    collapsible
-                    collapsedSize="0"
-                    className="hidden md:block"
-                >
-                    <SqlSidebar
-                        projectId={projectId}
-                        schema={schema.data}
-                        onInsert={insert}
-                        onOpen={(tab) => open(projectId, tab)}
-                    />
-                </Panel>
-                <Separator className="hidden md:block" />
+                {wide ? (
+                    <>
+                        <Panel
+                            id="sidebar"
+                            defaultSize="20"
+                            minSize="14"
+                            maxSize="40"
+                            collapsible
+                            collapsedSize="0"
+                        >
+                            <SqlSidebar
+                                projectId={projectId}
+                                schema={schema.data}
+                                onInsert={insert}
+                                onOpen={(tab) => open(projectId, tab)}
+                            />
+                        </Panel>
+                        <Separator />
+                    </>
+                ) : null}
                 <Panel id="main" minSize="40">
                     <div className="flex h-full flex-col">
                         <div className="flex h-9 shrink-0 items-stretch border-b border-rule bg-panel">
@@ -393,7 +399,7 @@ export function SqlWorkspace() {
                                 <Plus size={14} />
                             </IconButton>
                         </div>
-                        <div className="flex h-11 shrink-0 flex-wrap items-center gap-1.5 border-b border-rule px-2">
+                        <div className="flex min-h-11 shrink-0 flex-wrap items-center gap-1.5 border-b border-rule px-2 py-1.5">
                             <Button
                                 size="sm"
                                 variant="primary"

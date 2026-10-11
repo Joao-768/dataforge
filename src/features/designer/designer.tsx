@@ -308,7 +308,7 @@ function DesignerWorkspace({ draft }: { draft: DraftState }) {
     if (!document) return <LoadingRows rows={8} />
 
     const toolbar = (
-        <div className="flex h-11 shrink-0 items-center gap-1 border-b border-rule bg-paper px-2 sm:px-3">
+        <div className="scrollbar-thin flex h-11 shrink-0 items-center gap-1 overflow-x-auto border-b border-rule bg-paper px-2 sm:px-3">
             <Button size="sm" variant="secondary" onClick={addTableNow} title="Add table (T)">
                 <Plus size={14} aria-hidden="true" /> Table
             </Button>

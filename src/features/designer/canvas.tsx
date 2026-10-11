@@ -338,6 +338,7 @@ export function DesignerCanvas({
                 />
                 <Controls showInteractive={false} position="bottom-left" />
                 <MiniMap
+                    style={{ width: 168, height: 112 }}
                     pannable
                     zoomable
                     position="bottom-right"

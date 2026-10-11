@@ -30,6 +30,7 @@ import { Menu } from '@/components/ui/menu'
 import { useToast } from '@/components/ui/toast'
 import { api, ApiError, projectApi } from '@/lib/api'
 import { formatNumber } from '@/lib/format'
+import { useMediaQuery } from '@/lib/use-media-query'
 import { cn } from '@/lib/utils'
 import { useProjectId } from '@/features/workspace/context'
 import { useLiveSchema } from '@/features/workspace/queries'
@@ -75,7 +76,12 @@ export function DataExplorer() {
     const pathname = usePathname()
     const params = useSearchParams()
     const schema = useLiveSchema(projectId)
-    const layout = useDefaultLayout({ id: 'dataforge:explorer', panelIds: ['tables', 'grid'] })
+    // The table list is a side panel from tablet width up, a select above the grid otherwise.
+    const wide = useMediaQuery('(min-width: 768px)')
+    const layout = useDefaultLayout({
+        id: 'dataforge:explorer',
+        panelIds: wide ? ['tables', 'grid'] : ['grid'],
+    })
     const [filterText, setFilterText] = useState('')
 
     const relations = useMemo(
@@ -143,85 +149,117 @@ export function DataExplorer() {
                 defaultLayout={layout.defaultLayout}
                 onLayoutChanged={layout.onLayoutChanged}
             >
-                <Panel
-                    id="tables"
-                    defaultSize="16"
-                    minSize="12"
-                    maxSize="30"
-                    className="hidden bg-panel md:block"
-                >
-                    <nav aria-label="Tables" className="flex h-full flex-col">
-                        <div className="border-b border-rule p-2">
-                            <label className="relative block">
-                                <Search
-                                    size={13}
-                                    className="pointer-events-none absolute top-1/2 left-2 -translate-y-1/2 text-ink-3"
-                                    aria-hidden="true"
-                                />
-                                <input
-                                    value={filterText}
-                                    onChange={(event) => setFilterText(event.target.value)}
-                                    placeholder="Find a table"
-                                    aria-label="Find a table"
-                                    className="field field-sm pl-7"
-                                />
-                            </label>
-                        </div>
-                        <ul className="scrollbar-thin min-h-0 flex-1 overflow-y-auto p-1.5">
-                            {relations
-                                .filter(
-                                    (relation) =>
-                                        !needle || relation.name.toLowerCase().includes(needle),
-                                )
-                                .map((relation) => {
-                                    const active = relation === current
-                                    return (
-                                        <li key={`${relation.schema}.${relation.name}`}>
-                                            <button
-                                                type="button"
-                                                onClick={() => choose(relation)}
-                                                aria-current={active ? 'true' : undefined}
-                                                className={cn(
-                                                    'flex w-full items-center gap-2 rounded px-2 py-1.5 text-left',
-                                                    active
-                                                        ? 'bg-raised text-ink'
-                                                        : 'text-ink-2 hover:bg-raised/60 hover:text-ink',
-                                                )}
-                                            >
-                                                {relation.kind === 'view' ? (
-                                                    <Eye
-                                                        size={12}
-                                                        className="shrink-0 text-ink-3"
-                                                    />
-                                                ) : (
-                                                    <Table2
-                                                        size={12}
-                                                        className={cn(
-                                                            'shrink-0',
-                                                            active ? 'text-accent' : 'text-ink-3',
-                                                        )}
-                                                    />
-                                                )}
-                                                <span className="min-w-0 flex-1 truncate font-mono text-[12px]">
-                                                    {relation.schema !== 'public'
-                                                        ? `${relation.schema}.`
-                                                        : ''}
-                                                    {relation.name}
-                                                </span>
-                                                {relation.rows !== null ? (
-                                                    <span className="font-mono text-[10px] text-ink-3">
-                                                        {formatNumber(relation.rows)}
-                                                    </span>
-                                                ) : null}
-                                            </button>
-                                        </li>
+                {wide ? (
+                    <Panel
+                        id="tables"
+                        defaultSize="16"
+                        minSize="12"
+                        maxSize="30"
+                        className="bg-panel"
+                    >
+                        <nav aria-label="Tables" className="flex h-full flex-col">
+                            <div className="border-b border-rule p-2">
+                                <label className="relative block">
+                                    <Search
+                                        size={13}
+                                        className="pointer-events-none absolute top-1/2 left-2 -translate-y-1/2 text-ink-3"
+                                        aria-hidden="true"
+                                    />
+                                    <input
+                                        value={filterText}
+                                        onChange={(event) => setFilterText(event.target.value)}
+                                        placeholder="Find a table"
+                                        aria-label="Find a table"
+                                        className="field field-sm pl-7"
+                                    />
+                                </label>
+                            </div>
+                            <ul className="scrollbar-thin min-h-0 flex-1 overflow-y-auto p-1.5">
+                                {relations
+                                    .filter(
+                                        (relation) =>
+                                            !needle || relation.name.toLowerCase().includes(needle),
                                     )
-                                })}
-                        </ul>
-                    </nav>
-                </Panel>
-                <Separator className="hidden md:block" />
+                                    .map((relation) => {
+                                        const active = relation === current
+                                        return (
+                                            <li key={`${relation.schema}.${relation.name}`}>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => choose(relation)}
+                                                    aria-current={active ? 'true' : undefined}
+                                                    className={cn(
+                                                        'flex w-full items-center gap-2 rounded px-2 py-1.5 text-left',
+                                                        active
+                                                            ? 'bg-raised text-ink'
+                                                            : 'text-ink-2 hover:bg-raised/60 hover:text-ink',
+                                                    )}
+                                                >
+                                                    {relation.kind === 'view' ? (
+                                                        <Eye
+                                                            size={12}
+                                                            className="shrink-0 text-ink-3"
+                                                        />
+                                                    ) : (
+                                                        <Table2
+                                                            size={12}
+                                                            className={cn(
+                                                                'shrink-0',
+                                                                active
+                                                                    ? 'text-accent'
+                                                                    : 'text-ink-3',
+                                                            )}
+                                                        />
+                                                    )}
+                                                    <span className="min-w-0 flex-1 truncate font-mono text-[12px]">
+                                                        {relation.schema !== 'public'
+                                                            ? `${relation.schema}.`
+                                                            : ''}
+                                                        {relation.name}
+                                                    </span>
+                                                    {relation.rows !== null ? (
+                                                        <span className="font-mono text-[10px] text-ink-3">
+                                                            {formatNumber(relation.rows)}
+                                                        </span>
+                                                    ) : null}
+                                                </button>
+                                            </li>
+                                        )
+                                    })}
+                            </ul>
+                        </nav>
+                    </Panel>
+                ) : null}
+                {wide ? <Separator /> : null}
                 <Panel id="grid" minSize="40">
+                    {!wide ? (
+                        <div className="border-b border-rule p-2">
+                            <select
+                                className="field field-sm mono"
+                                aria-label="Table"
+                                value={current ? `${current.schema}.${current.name}` : ''}
+                                onChange={(event) => {
+                                    const relation = relations.find(
+                                        (candidate) =>
+                                            `${candidate.schema}.${candidate.name}` ===
+                                            event.target.value,
+                                    )
+                                    if (relation) choose(relation)
+                                }}
+                            >
+                                {relations.map((relation) => (
+                                    <option
+                                        key={`${relation.schema}.${relation.name}`}
+                                        value={`${relation.schema}.${relation.name}`}
+                                    >
+                                        {relation.schema === 'public'
+                                            ? relation.name
+                                            : `${relation.schema}.${relation.name}`}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    ) : null}
                     {current ? (
                         <TableView
                             key={`${current.schema}.${current.name}`}
