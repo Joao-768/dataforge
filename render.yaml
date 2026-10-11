@@ -1,0 +1,43 @@
+# Render Blueprint for the live demo: one Docker web service.
+#
+# Both PostgreSQL servers are external (Neon in the live demo): the target
+# server needs a role with CREATEDB and CREATEROLE, and Render's free tier
+# allows one database per workspace. Prepare the target server once with
+# `npm run target:init`, then fill in the `sync: false` values below.
+#
+# APP_URL falls back to RENDER_EXTERNAL_URL, and DATAFORGE_ENCRYPTION_KEY is
+# generated as 32 random bytes in base64. Back it up from the dashboard:
+# losing it makes saved connection passwords unreadable.
+
+services:
+    - type: web
+      name: dataforge
+      runtime: docker
+      plan: free
+      region: frankfurt
+      dockerfilePath: ./Dockerfile
+      healthCheckPath: /api/health
+      envVars:
+          - key: DATABASE_URL
+            sync: false
+          - key: TARGET_DB_HOST
+            sync: false
+          - key: TARGET_DB_PORT
+            value: '5432'
+          - key: TARGET_DB_SSL
+            value: verify-full
+          - key: TARGET_DB_PROVISIONER_PASSWORD
+            sync: false
+          - key: DATAFORGE_ENCRYPTION_KEY
+            generateValue: true
+          # Render's proxy appends the client address to X-Forwarded-For.
+          - key: TRUST_PROXY
+            value: 'true'
+          # Sized for Neon's free tier (0.5 GB): an empty database takes
+          # about 8 MB before any data.
+          - key: DEMO_MAX_ACTIVE
+            value: '15'
+          - key: SANDBOX_MAX_TOTAL
+            value: '30'
+          - key: SANDBOX_MAX_SIZE_MB
+            value: '25'

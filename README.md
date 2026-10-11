@@ -194,12 +194,27 @@ The image is a multi-stage build producing the Next.js standalone server (Node 2
 
 To deploy:
 
-1. Provide two PostgreSQL 17 servers: one for application metadata, one for sandboxes. Keeping them separate means user workloads can never touch DataForge's own data. Initialise the target server once with `docker/target-db/01-provisioner.sh`, run as its superuser.
+1. Provide two PostgreSQL 17 servers: one for application metadata, one for sandboxes. Keeping them separate means user workloads can never touch DataForge's own data. Initialise the target server once with `docker/target-db/01-provisioner.sh`, run as its superuser. On a managed server without a superuser, run `npm run target:init` with the provider's owner role instead (see below).
 2. Set `DATABASE_URL`, the `TARGET_DB_*` variables, `DATAFORGE_ENCRYPTION_KEY` (back it up: losing it makes saved credentials unreadable), `APP_URL` (https), `SMTP_URL`.
 3. Put the app behind a TLS-terminating reverse proxy that overwrites `X-Forwarded-For`, and set `TRUST_PROXY=true`.
 4. Run a single app instance (see limitations), or move rate limits and the running-query registry to shared storage first.
 
 Before exposing it publicly, review [docs/SECURITY.md](docs/SECURITY.md#before-a-public-deployment).
+
+### Render and Neon
+
+The live demo runs as a Docker web service on Render (`render.yaml`) with both databases on Neon. Vercel is not a fit: rate limits, the registry of running queries and the housekeeping sweep need one long-lived process.
+
+1. Create two Neon projects in the same region as the service, one for the application database and one for sandboxes.
+2. Prepare the sandbox server with its owner connection string:
+    ```bash
+    TARGET_OWNER_URL='postgres://neondb_owner:...@ep-....neon.tech/neondb?sslmode=require' \
+    TARGET_DB_PROVISIONER_PASSWORD='...' npm run target:init
+    ```
+    Neon's owner role cannot revoke access to the `postgres` database, which Neon owns; the script reports it. Sandbox credentials are never shown to users, so sandbox roles only ever reach their own database through DataForge.
+3. Create the service from `render.yaml` and set `DATABASE_URL` (the application project's connection string), `TARGET_DB_HOST` (the sandbox project's direct, non-pooled host) and `TARGET_DB_PROVISIONER_PASSWORD`. `TARGET_DB_SSL=verify-full` encrypts and verifies every target connection.
+
+On the free plan the service sleeps after 15 minutes without traffic, so the first request after that takes about a minute. Password reset email needs `SMTP_URL`; the demo does not use email.
 
 ---
 

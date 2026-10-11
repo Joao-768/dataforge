@@ -19,6 +19,7 @@
         "test:all": "vitest run",
         "test:e2e": "playwright test",
         "db:migrate": "tsx --conditions=react-server scripts/migrate.mts",
+        "target:init": "node scripts/init-managed-target.mjs",
         "stack": "docker compose up --build -d"
     },
     "dependencies": {

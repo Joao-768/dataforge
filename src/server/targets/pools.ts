@@ -35,7 +35,9 @@ export const targetTypes: pg.CustomTypesConfig = {
 const MAX_POOLS = 60
 const pools = new Map<string, { pool: pg.Pool; lastUsed: number }>()
 
-function sslOption(credentials: TargetCredentials): pg.PoolConfig['ssl'] {
+export function sslOption(
+    credentials: Pick<TargetCredentials, 'ssl' | 'servername'>,
+): pg.PoolConfig['ssl'] {
     if (credentials.ssl === 'disable') return false
     return {
         rejectUnauthorized: credentials.ssl === 'verify-full',

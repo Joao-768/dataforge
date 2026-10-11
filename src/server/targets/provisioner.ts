@@ -6,7 +6,7 @@ import pg from 'pg'
 import { config } from '@/server/config'
 import { AppError } from '@/server/errors'
 import { log } from '@/server/logger'
-import { targetTypes, type TargetCredentials } from '@/server/targets/pools'
+import { sslOption, targetTypes, type TargetCredentials } from '@/server/targets/pools'
 import { quoteIdent, quoteLiteral } from '@/shared/sql/identifiers'
 
 // Creates and destroys sandbox databases on the target server.
@@ -43,6 +43,7 @@ function provisionerCredentials(database: string): pg.ClientConfig {
         database,
         user: env.TARGET_DB_PROVISIONER_USER,
         password: env.TARGET_DB_PROVISIONER_PASSWORD,
+        ssl: sslOption({ ssl: env.TARGET_DB_SSL }),
         connectionTimeoutMillis: 5_000,
         application_name: 'dataforge-provisioner',
         types: targetTypes,
@@ -86,7 +87,7 @@ function managedCredentials(database: string, user: string, password: string): T
         database,
         user,
         password,
-        ssl: 'disable',
+        ssl: config().TARGET_DB_SSL,
     }
 }
 

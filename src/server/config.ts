@@ -22,6 +22,9 @@ const schema = z.object({
     TARGET_DB_ADMIN_DATABASE: z.string().min(1).default('dataforge_admin'),
     TARGET_DB_PROVISIONER_USER: z.string().min(1).default('dataforge_provisioner'),
     TARGET_DB_PROVISIONER_PASSWORD: z.string().min(1, 'TARGET_DB_PROVISIONER_PASSWORD is required'),
+    // TLS to the target server: "disable" on a private network, "verify-full"
+    // for a managed server reached over the internet.
+    TARGET_DB_SSL: z.enum(['disable', 'require', 'verify-full']).default('disable'),
 
     DATAFORGE_ENCRYPTION_KEY: z.string().optional(),
     DATAFORGE_KEY_FILE: z.string().default('.data/encryption.key'),
@@ -63,7 +66,11 @@ let cached: AppConfig | undefined
 
 export function config(): AppConfig {
     if (cached) return cached
-    const parsed = schema.safeParse(process.env)
+    // Render publishes the service URL, so APP_URL can be left unset there.
+    const parsed = schema.safeParse({
+        ...process.env,
+        APP_URL: process.env.APP_URL || process.env.RENDER_EXTERNAL_URL,
+    })
     if (!parsed.success) {
         const issues = parsed.error.issues
             .map((issue) => `  ${issue.path.join('.')}: ${issue.message}`)
