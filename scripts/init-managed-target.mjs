@@ -56,6 +56,11 @@ await withClient({ connectionString: ownerUrl }, async (owner) => {
             console.warn(`Could not revoke PUBLIC access to ${datname}: ${error.message}`)
         }
     }
+
+    // The provisioner bootstraps through the owner's database, which has just
+    // lost its PUBLIC connect grant.
+    const { rows } = await owner.query('SELECT current_database() AS name')
+    await owner.query(`GRANT CONNECT ON DATABASE ${ident(rows[0].name)} TO ${ident(provisioner)}`)
 })
 
 // The maintenance database is created by the provisioner itself, so it owns it
