@@ -133,13 +133,42 @@ export async function ensureDemoTemplate(): Promise<void> {
             await client.query(sql)
             await client.query('RESET ROLE')
         })
+        // A template that accepts no connections, like template0, cannot be
+        // held open by background workers (see whileInUse), so cloning it is
+        // never refused for "being accessed by other users".
+        await admin.query(`ALTER DATABASE ${building} WITH ALLOW_CONNECTIONS false`)
         await admin.query(`DROP DATABASE IF EXISTS ${TEMPLATE_DATABASE} WITH (FORCE)`)
-        await admin.query(`ALTER DATABASE ${building} RENAME TO ${TEMPLATE_DATABASE}`)
+        await whileInUse(() =>
+            admin.query(`ALTER DATABASE ${building} RENAME TO ${TEMPLATE_DATABASE}`),
+        )
         await admin.query(`COMMENT ON DATABASE ${TEMPLATE_DATABASE} IS ${quoteLiteral(marker)}`)
         log.info('demo template database ready')
     } finally {
         await admin.query('SELECT pg_advisory_unlock($1)', [TEMPLATE_LOCK]).catch(() => undefined)
         admin.release()
+    }
+}
+
+/**
+ * Runs `work` again while PostgreSQL refuses it because another session is
+ * on the database it copies or renames (SQLSTATE 55006). On managed servers
+ * that session is often a background worker, such as Neon's TimescaleDB
+ * scheduler, which visits every database that accepts connections and leaves
+ * after a few seconds.
+ */
+export async function whileInUse<T>(
+    work: () => Promise<T>,
+    { attempts = 10, delayMs = 1000 } = {},
+): Promise<T> {
+    for (let attempt = 1; ; attempt++) {
+        try {
+            return await work()
+        } catch (error) {
+            const inUse = (error as { code?: string }).code === '55006'
+            if (!inUse || attempt >= attempts) throw error
+            log.warn({ attempt }, 'database in use by another session; retrying')
+            await new Promise((resolve) => setTimeout(resolve, delayMs))
+        }
     }
 }
 
@@ -189,7 +218,7 @@ export async function createSandbox(template: SandboxTemplate): Promise<Sandbox>
         await admin.query(`ALTER ROLE ${reader} SET default_transaction_read_only = on`)
 
         const source = template === 'ecommerce' ? TEMPLATE_DATABASE : 'template0'
-        await admin.query(`CREATE DATABASE ${database} TEMPLATE ${source}`)
+        await whileInUse(() => admin.query(`CREATE DATABASE ${database} TEMPLATE ${source}`))
         await admin.query(`REVOKE ALL ON DATABASE ${database} FROM PUBLIC`)
         await admin.query(`GRANT CONNECT, TEMPORARY ON DATABASE ${database} TO ${owner}`)
         await admin.query(`GRANT CONNECT ON DATABASE ${database} TO ${reader}`)

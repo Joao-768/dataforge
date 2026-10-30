@@ -102,6 +102,7 @@ describe('managed sandboxes', () => {
         await again.end()
 
         // Neither role may connect to another sandbox, the template or the admin database.
+        // The template refuses every connection outright (ALLOW_CONNECTIONS false).
         for (const database of [
             other.database,
             'df_template_ecommerce',
@@ -109,7 +110,7 @@ describe('managed sandboxes', () => {
             'postgres',
         ]) {
             await expect(connect({ ...writer, database })).rejects.toThrow(
-                /permission denied|CONNECT privilege/,
+                /permission denied|CONNECT privilege|not currently accepting connections/,
             )
         }
     })
