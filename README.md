@@ -2,7 +2,7 @@
 
 **A visual PostgreSQL studio.** Design a schema on a canvas, review the SQL it generates, apply it as a transactional migration, then query, explain, explore and import data, all against a real PostgreSQL database.
 
-DataForge is the fourth project in a portfolio alongside CollabCode, Pulse Monitor and Workflow Automation Engine, and shares their visual language: ink on a pure background, hairline rules, uppercase mono labels and, like Pulse Monitor, a black-and-white interface where colour is reserved for status and code.
+DataForge is the fourth project in a portfolio alongside CollabCode, Pulse Monitor and FlowEngine, and shares their visual language: ink on a pure background, hairline rules, uppercase mono labels and, like Pulse Monitor, a black-and-white interface where colour is reserved for status and code.
 
 ![Stack](https://img.shields.io/badge/Next.js-16-black) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-336791) ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6)
 
