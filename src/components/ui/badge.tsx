@@ -19,7 +19,7 @@ const DOTS: Record<BadgeTone, string> = {
     danger: 'bg-danger',
 }
 
-/** Mono uppercase status pill, the same shape as Pulse Monitor's. */
+/** Mono uppercase status pill, the same shape as PulseMonitor's. */
 export function Badge({
     tone = 'neutral',
     dot = false,

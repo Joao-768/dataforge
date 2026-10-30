@@ -1,8 +1,8 @@
 import { cn } from '@/lib/utils'
 
 // Wordmark: a table glyph (a strong header row over two lighter rows), then
-// the name with the second half in a lighter weight, like Pulse Monitor's
-// "pulse monitor". Drawn in ink only.
+// the name with the second half in a lighter weight, like PulseMonitor's
+// "pulsemonitor". Drawn in ink only.
 export function LogoMark({ className }: { className?: string }) {
     return (
         <svg viewBox="0 0 20 20" className={cn('h-5 w-5', className)} aria-hidden="true">

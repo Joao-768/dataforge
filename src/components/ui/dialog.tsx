@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
 // Native <dialog>: focus trapping, Escape and the backdrop come from the
-// browser, like Pulse Monitor's dialogs.
+// browser, like PulseMonitor's dialogs.
 export function Dialog({
     open,
     onClose,

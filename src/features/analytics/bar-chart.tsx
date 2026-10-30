@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
 
-// Daily bars drawn in ink, like the strip charts in Pulse Monitor. An
+// Daily bars drawn in ink, like the strip charts in PulseMonitor. An
 // optional second value (failures) sits at the base of each bar in the
 // reserved danger colour, separated by a 2px surface gap. Hovering a bar
 // shows its exact values; the same numbers are available as a table.
