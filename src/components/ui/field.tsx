@@ -1,6 +1,8 @@
+import { Eye, EyeOff } from 'lucide-react'
 import {
     forwardRef,
     useId,
+    useState,
     type InputHTMLAttributes,
     type ReactNode,
     type SelectHTMLAttributes,
@@ -64,6 +66,41 @@ export const Field = forwardRef<HTMLInputElement, Labelled & InputHTMLAttributes
         )
     },
 )
+
+/** A password input with an eye button that toggles the characters visible. */
+export const PasswordField = forwardRef<
+    HTMLInputElement,
+    Labelled & Omit<InputHTMLAttributes<HTMLInputElement>, 'type'>
+>(function PasswordField({ label, error, hint, className, id, ...props }, ref) {
+    const generated = useId()
+    const inputId = id ?? generated
+    const [visible, setVisible] = useState(false)
+    const Icon = visible ? EyeOff : Eye
+    return (
+        <Wrapper id={inputId} label={label} error={error} hint={hint} className={className}>
+            <div className="relative">
+                <input
+                    ref={ref}
+                    id={inputId}
+                    type={visible ? 'text' : 'password'}
+                    className="field pr-10"
+                    aria-invalid={error ? true : undefined}
+                    aria-describedby={describedBy(inputId, error, hint)}
+                    {...props}
+                />
+                <button
+                    type="button"
+                    onClick={() => setVisible((value) => !value)}
+                    aria-label={visible ? 'Hide password' : 'Show password'}
+                    aria-pressed={visible}
+                    className="absolute inset-y-0 right-0 flex w-10 items-center justify-center rounded-r-md text-ink-3 transition-colors hover:text-ink"
+                >
+                    <Icon size={15} aria-hidden="true" />
+                </button>
+            </div>
+        </Wrapper>
+    )
+})
 
 export const SelectField = forwardRef<
     HTMLSelectElement,

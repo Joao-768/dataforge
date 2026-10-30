@@ -5,7 +5,8 @@ test('a new user designs a table, migrates, inserts a row and queries it', async
     await page.goto('/register')
     await page.getByLabel('Name').fill('End To End')
     await page.getByLabel('Email').fill(email)
-    await page.getByLabel('Password').fill('correct-horse-battery')
+    await page.getByLabel('Password', { exact: true }).fill('correct-horse-battery')
+    await page.getByLabel('Confirm password').fill('correct-horse-battery')
     await page.getByRole('button', { name: 'Create account' }).click()
     await expect(page.getByRole('heading', { name: 'Projects', exact: true })).toBeVisible()
 

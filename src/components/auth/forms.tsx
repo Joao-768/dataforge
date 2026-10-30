@@ -6,7 +6,7 @@ import { useState, type FormEvent } from 'react'
 import { z } from 'zod'
 import { Alert } from '@/components/ui/feedback'
 import { Button } from '@/components/ui/button'
-import { Field } from '@/components/ui/field'
+import { Field, PasswordField } from '@/components/ui/field'
 import { api, ApiError } from '@/lib/api'
 import {
     forgotPasswordSchema,
@@ -108,10 +108,19 @@ export function LoginForm() {
     )
 }
 
+// The confirmation only lives in the browser; the API gets the plain register body.
+const registerFormSchema = registerSchema
+    .extend({ confirmPassword: z.string() })
+    .refine((values) => values.password === values.confirmPassword, {
+        path: ['confirmPassword'],
+        message: 'The two passwords do not match.',
+    })
+
 export function RegisterForm() {
     const router = useRouter()
-    const { errors, formError, busy, onSubmit } = useForm(registerSchema, async (values) => {
-        await api('/api/auth/register', { body: values })
+    const { errors, formError, busy, onSubmit } = useForm(registerFormSchema, async (values) => {
+        const { confirmPassword: _confirm, ...body } = values
+        await api('/api/auth/register', { body })
         router.push('/projects?welcome=1')
         router.refresh()
     })
@@ -126,13 +135,18 @@ export function RegisterForm() {
                 autoComplete="email"
                 error={errors.email}
             />
-            <Field
+            <PasswordField
                 label="Password"
                 name="password"
-                type="password"
                 autoComplete="new-password"
                 error={errors.password}
                 hint="At least 8 characters."
+            />
+            <PasswordField
+                label="Confirm password"
+                name="confirmPassword"
+                autoComplete="new-password"
+                error={errors.confirmPassword}
             />
             <Button type="submit" variant="primary" size="md" busy={busy} className="w-full">
                 Create account

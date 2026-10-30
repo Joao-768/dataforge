@@ -57,11 +57,7 @@ export function Masthead() {
     return (
         <header className="sticky top-0 z-40 border-b border-rule bg-paper/95 backdrop-blur supports-[backdrop-filter]:bg-paper/80">
             <div className="flex h-[var(--masthead-height)] items-center gap-6 px-4 sm:px-5">
-                <Link
-                    href="/projects"
-                    aria-label="DataForge projects"
-                    className="flex items-center rounded"
-                >
+                <Link href="/" aria-label="DataForge home" className="flex items-center rounded">
                     <Logo />
                 </Link>
                 <nav aria-label="Main" className="hidden h-full items-center gap-5 sm:flex">
