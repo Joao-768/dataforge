@@ -55,6 +55,10 @@ const schema = z.object({
 
     SECURE_COOKIES: bool.optional(),
     TRUST_PROXY: bool.default(false),
+
+    // Enables POST /api/cron/sweep for hosts without a long-running process
+    // (Vercel), where the housekeeping timer in bootstrap.ts cannot be relied on.
+    CRON_SECRET: z.string().min(32, 'CRON_SECRET must be at least 32 characters').optional(),
 })
 
 export type AppConfig = z.infer<typeof schema> & {

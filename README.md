@@ -182,6 +182,7 @@ All variables are validated at startup (`src/server/config.ts`); invalid configu
 | `QUERY_TIMEOUT_MS`, `QUERY_MAX_ROWS`, `IMPORT_MAX_BYTES`                    | `15000`, `1000`, `10485760`          | Query and import limits                                                    |
 | `SECURE_COOKIES`                                                            | `true` when `APP_URL` is https       | Cookie `Secure` flag                                                       |
 | `TRUST_PROXY`                                                               | `false`                              | Use the last `X-Forwarded-For` hop (behind a trusted proxy)                |
+| `CRON_SECRET`                                                               | empty                                | Enables `POST /api/cron/sweep` (bearer token, 32+ characters)              |
 | `LOG_LEVEL`                                                                 | `info`                               | pino log level                                                             |
 
 Docker Compose also reads `APP_DB_PASSWORD`, `TARGET_DB_SUPERUSER_PASSWORD`, `TARGET_DB_PROVISIONER_PASSWORD`, `APP_PORT` and `MAILPIT_UI_PORT`.
@@ -201,26 +202,32 @@ To deploy:
 
 Before exposing it publicly, review [docs/SECURITY.md](docs/SECURITY.md#before-a-public-deployment).
 
-### Render and Neon
+### Vercel and Neon
 
-The live demo runs as a Docker web service on Render (`render.yaml`) with both databases on Neon. Vercel is not a fit: rate limits, the registry of running queries and the housekeeping sweep need one long-lived process.
+The live demo runs on Vercel at `https://dataforge.joao-caetano.com`, in the Frankfurt region (`vercel.json`), with both databases on Neon in AWS `eu-central-1`. A serverless host has no long-lived process, which costs three things, accepted for the demo:
 
-1. Create two Neon projects in the same region as the service, one for the application database and one for sandboxes.
+- **Cancelling a query** reaches the running query only when the cancel request lands on the same instance, since the registry is in memory.
+- **Imports** are limited by Vercel's 4.5 MB request body: set `IMPORT_MAX_BYTES=4000000`.
+- **Housekeeping** does not run on a timer. A scheduler (cron-job.org) calls `POST /api/cron/sweep` with `Authorization: Bearer <CRON_SECRET>` every 15 minutes; it drops expired demos. Orphaned sandbox databases are dropped on the second sweep that sees them, so on serverless they may take longer to go.
+
+Rate limits are per instance, so they are looser than on a single server.
+
+1. Create two Neon projects in `eu-central-1`, one for the application database and one for sandboxes.
 2. Prepare the sandbox server with its owner connection string:
     ```bash
     TARGET_OWNER_URL='postgres://neondb_owner:...@ep-....neon.tech/neondb?sslmode=require' \
     TARGET_DB_PROVISIONER_PASSWORD='...' npm run target:init
     ```
     Neon's owner role cannot revoke access to the `postgres` database, which Neon owns; the script reports it. Sandbox credentials are never shown to users, so sandbox roles only ever reach their own database through DataForge.
-3. Create the service from `render.yaml` and set `DATABASE_URL` (the application project's connection string), `TARGET_DB_HOST` (the sandbox project's direct, non-pooled host) and `TARGET_DB_PROVISIONER_PASSWORD`. `TARGET_DB_SSL=verify-full` encrypts and verifies every target connection.
+3. Import the repository in Vercel and set `APP_URL`, `DATABASE_URL` (the application project's connection string), `TARGET_DB_HOST` (the sandbox project's direct, non-pooled host), `TARGET_DB_SSL=verify-full`, `TARGET_DB_PROVISIONER_PASSWORD`, `DATAFORGE_ENCRYPTION_KEY`, `TRUST_PROXY=true`, `CRON_SECRET`, `IMPORT_MAX_BYTES=4000000` and the demo limits (`DEMO_MAX_ACTIVE=15`, `SANDBOX_MAX_TOTAL=30`, `SANDBOX_MAX_SIZE_MB=25` fit Neon's free tier).
 
-On the free plan the service sleeps after 15 minutes without traffic, so the first request after that takes about a minute. Password reset email needs `SMTP_URL`; the demo does not use email.
+The Docker image and `render.yaml` still work for a single long-lived server, which has none of the limitations above. Password reset email needs `SMTP_URL`; the demo does not use email.
 
 ---
 
 ## Known limitations
 
-- **Single instance.** Rate limits and the registry of running queries (used for cancellation) are in memory. Multiple instances need a shared store for both.
+- **Single instance.** Rate limits and the registry of running queries (used for cancellation) are in memory. Multiple instances, including the serverless live demo, need a shared store for both.
 - **Schema designer scope.** Tables, columns, types, nullability, defaults, identity, comments, primary keys, unique constraints and foreign keys are editable. Check constraints, indexes, views, enums, partitions, triggers and functions are introspected and preserved but edited in the SQL editor. Moving tables between schemas and reordering physical columns are not supported. Composite foreign keys are shown and preserved; creating them is single-column in the UI.
 - **Drafts are not merged.** If the database changes outside the designer while a draft has unapplied edits, the draft is marked stale and can be reset to the database; there is no three-way merge.
 - **Sandboxes use the `public` schema.** The owner role cannot create schemas (by design).
